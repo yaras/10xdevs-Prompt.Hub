@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include=".ai\0-project-highlevel.md" />
+  </ItemGroup>
+
 </Project>
