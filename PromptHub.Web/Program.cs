@@ -1,9 +1,20 @@
+// <copyright file="Program.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using PromptHub.Web.Components;
 
 namespace PromptHub.Web
 {
+    /// <summary>
+    /// Application entry point.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Main application method.
+        /// </summary>
+        /// <param name="args">Command line arguments.</param>
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +29,7 @@ namespace PromptHub.Web
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
+
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
