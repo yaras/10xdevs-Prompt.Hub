@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Include=".ai\0-project-highlevel.md" />
     <None Include=".ai\1-prd.md" />
+    <None Include=".ai\2-tech-stack.md" />
   </ItemGroup>
 
   <ItemGroup>
