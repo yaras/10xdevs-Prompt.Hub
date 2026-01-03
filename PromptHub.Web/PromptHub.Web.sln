@@ -12,8 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{02EA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "instructions", "instructions", "{2982B20B-BDEC-4FF8-9976-E376A17D3E06}"
 	ProjectSection(SolutionItems) = preProject
-		csharp-instructions.md = csharp-instructions.md
-		razor-instructions.md = razor-instructions.md
+		..\.github\instructions\csharp-instructions.md = ..\.github\instructions\csharp-instructions.md
+		..\.github\instructions\razor-instructions.md = ..\.github\instructions\razor-instructions.md
 	EndProjectSection
 EndProject
 Global
