@@ -10,7 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\stylecop.json" Link="stylecop.json" />
+    <Content Remove="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +28,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
 
 </Project>
