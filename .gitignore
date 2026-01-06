@@ -429,3 +429,5 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE_BIN/
+
+scripts/config.ps1
