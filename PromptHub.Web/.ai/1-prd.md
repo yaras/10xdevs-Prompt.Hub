@@ -14,10 +14,12 @@ PromptHub is an internal, single-tenant web application that enables company mem
 - Deployed to Azure App Service.
 
 ### 1.4 Authentication and access model
-- Single Azure Entra tenant only.
 - No anonymous access; login is required before any application content is visible.
-- Authorization requires a global policy enforcing a specific member app role.
-- Role assignment is handled operationally in Azure Portal (no in-app admin UI in MVP).
+- Authentication uses **Microsoft Entra External ID** (CIAM) with social identity providers:
+  - Microsoft personal accounts (Outlook.com / Live)
+  - Google accounts (Gmail)
+- Authorization is enforced globally (fallback policy): all application routes require an authenticated user.
+- No mandatory app-role gating in MVP; any authenticated user can access the application.
 
 ### 1.5 Core data objects (MVP)
 Prompt
@@ -68,16 +70,17 @@ Tag catalog
 
 ### 3.1 Authentication and authorization
 FR-001 Entra sign-in required
-- The application must require Azure Entra sign-in before rendering any application pages or data.
+- The application must require sign-in via Microsoft Entra External ID before rendering any application pages or data.
 
-FR-002 Role-gated access
-- The application must enforce a global authorization policy that requires the configured member app role.
+FR-002 Global authenticated access
+- The application must enforce a global authorization policy (fallback policy) that requires an authenticated user for all routes.
 
 FR-003 Access denied behavior
-- If a signed-in user lacks the required role, the application must show an access denied screen and provide a clear message that access requires role assignment.
+- If an unauthenticated user attempts to access the application, the user is redirected to sign-in.
 
 FR-004 User identity
 - The application must identify users by a stable Entra user identifier and use it for ownership checks and voting.
+- The stable identifier is the `oid` claim.
 
 ### 3.2 Prompt creation and editing
 FR-010 Create prompt
@@ -250,22 +253,6 @@ Description
 Acceptance Criteria
 - Given I am not authenticated, when I navigate to any app URL, then I am redirected to sign-in.
 - Given I complete sign-in successfully, when I return to the app, then I can access authorized areas.
-
-### US-002 Authorization by member role
-Description
-- As a company member, I must have the required app role to use the app so that access is limited to approved users.
-
-Acceptance Criteria
-- Given I am authenticated but missing the required role, when I access the app, then I see an access denied page.
-- Given I have the required role, when I access the app, then I can see the main navigation and catalogs.
-
-### US-003 Access denied guidance
-Description
-- As an authenticated user without access, I want clear instructions so I can get the correct role assigned.
-
-Acceptance Criteria
-- Given I lack the required role, when I see the access denied page, then it states access requires the member role.
-- The page includes a non-technical instruction telling me to contact an admin to request access.
 
 ### US-010 View Public catalog
 Description

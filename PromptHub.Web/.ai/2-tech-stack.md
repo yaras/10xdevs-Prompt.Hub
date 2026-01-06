@@ -11,10 +11,11 @@ This document summarizes the intended MVP technology stack based on `.ai/1-prd.m
 - **MudBlazor** for UI components.
 
 ## Authentication & authorization
-- **Azure Entra ID** authentication (single tenant).
-- Authorization via a **global policy** requiring a configured **member app role**.
-- Role assignment managed operationally in the **Azure Portal** (no in-app admin UI for MVP).
-- Users identified by a stable Entra user identifier for ownership checks and voting.
+- **Microsoft Entra External ID** authentication (CIAM) with social identity providers:
+  - Microsoft personal accounts (Outlook.com / Live)
+  - Google accounts (Gmail)
+- Authorization via a **global fallback policy** requiring an authenticated user (no anonymous access).
+- Users are identified by a stable Entra user identifier (`oid` claim) for ownership checks and voting.
 
 ## Data storage
 - **Azure Table Storage** for persistence of:
