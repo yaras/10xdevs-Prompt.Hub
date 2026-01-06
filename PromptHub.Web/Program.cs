@@ -4,7 +4,6 @@
 
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Logging;
 using PromptHub.Web.Components;
 
 namespace PromptHub.Web;
@@ -20,22 +19,22 @@ public class Program
     /// <param name="args">Command line arguments.</param>
     public static void Main(string[] args)
     {
-        IdentityModelEventSource.ShowPII = true;
-        IdentityModelEventSource.LogCompleteSecurityArtifact = true;
-
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        //builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-        //    .AddMicrosoftIdentityWebApp(options => builder.Configuration.Bind("AzureAdB2C", options));
-
         builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAdB2C"))
-            .EnableTokenAcquisitionToCallDownstreamApi()
-            .AddInMemoryTokenCaches();
+            .AddMicrosoftIdentityWebApp(options =>
+            {
+                builder.Configuration.Bind("AzureAd", options);
+
+                if (!string.IsNullOrWhiteSpace(options.Instance) && !string.IsNullOrWhiteSpace(options.TenantId))
+                {
+                    options.Authority = $"{options.Instance.TrimEnd('/')}/{options.TenantId}/v2.0";
+                }
+            });
 
         builder.Services.AddAuthorization(options =>
         {

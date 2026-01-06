@@ -7,7 +7,8 @@
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-	</PropertyGroup>
+	  <UserSecretsId>5f81c4d9-a590-41d7-9e6a-7dc595b5677d</UserSecretsId>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Update="..\\scripts\\config.ps1">
