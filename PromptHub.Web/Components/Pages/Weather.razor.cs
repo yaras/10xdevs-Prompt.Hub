@@ -3,9 +3,11 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PromptHub.Web.Components.Pages;
 
+[Authorize]
 /// <summary>
 /// Displays a simple weather forecast table.
 /// </summary>
