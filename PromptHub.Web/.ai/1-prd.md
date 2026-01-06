@@ -40,7 +40,7 @@ Vote (per-user state for a prompt)
 - UpdatedAt
 
 Tag catalog
-- Predefined list loaded from configuration.
+- Predefined list stored in Azure Table Storage (seeded operationally).
 - Tags are lower-case.
 
 ### 1.6 Information architecture (MVP)
@@ -120,7 +120,7 @@ FR-022 Switching visibility
 
 ### 3.4 Tag catalog and filtering
 FR-030 Predefined tags
-- The application must load a predefined tag list from configuration.
+- The application must load a predefined tag list from Azure Table Storage.
 - Users cannot create new tags in the MVP.
 
 FR-031 Tag selection UI

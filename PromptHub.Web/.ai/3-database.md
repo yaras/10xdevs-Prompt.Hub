@@ -33,7 +33,7 @@
 - Core MVP objects to persist:
   - **Prompts** with: `PromptId` (ULID), `Title`, `PromptText`, `Tags` (lower-case delimited), `Visibility` (private/public), `AuthorId`, `CreatedAt`, `UpdatedAt`, `IsDeleted`, `Likes`, `Dislikes`.
   - **Votes** as per-user state: `PromptId`, `VoterId`, `VoteValue` (like/dislike/none), `UpdatedAt`.
-  - **Tag catalog** is predefined from configuration (not user-generated).
+  - **Tag catalog** is predefined and stored in Table Storage (not user-generated).
 - Lists must be **pagination-ready** using continuation tokens.
 - Public catalog must support two sorts: **newest** and **most liked**.
 - Search requirements:
@@ -49,7 +49,7 @@
 - `Prompt` — tags:
   - Tags are stored on the prompt for display.
   - Querying/filtering by tags is done via a **tag index table** keyed by `Tag` that maps to `PromptId` (and may store denormalized fields needed for list display).
-- Tag catalog is a configuration-driven allowed list; prompts may reference only tags from that list.
+- Tag catalog is an application-managed allowed list stored in Table Storage; prompts may reference only tags from that list.
 
 ### c) Important security and scalability concerns
 

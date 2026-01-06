@@ -159,7 +159,7 @@ Supports faster-than-scan title search in Table Storage while still enabling **c
 ---
 
 ### Table: `TagCatalog`
-Stores the predefined allowed tags (even if loaded from config, storing allows auditing and future admin UI).
+Stores the predefined allowed tags. The application sources allowed tags from this table (not from configuration).
 
 **Keys**
 - `PartitionKey` (string, required): `tagcatalog`
@@ -206,3 +206,8 @@ Since Azure Table Storage has no joins/foreign keys, relationships are **logical
   - Public catalog uses only public indexes.
   - My prompts uses `Prompts` partition `u|{AuthorId}`.
   - Direct prompt fetch must check `Visibility` and `AuthorId` unless the request is for public content.
+
+- **Tag catalog bootstrapping (operational):** seed `TagCatalog` rows during environment provisioning (or on first run behind an admin-only operation). The app should treat `TagCatalog` as the source of truth for:
+  - Tag picker options
+  - Tag validation on prompt create/edit
+  - Constraints for AI tag suggestions
