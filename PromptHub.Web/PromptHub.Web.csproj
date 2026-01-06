@@ -9,6 +9,13 @@
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 
+  <ItemGroup>
+    <None Update="..\\scripts\\config.ps1">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
 	<ItemGroup>
 		<Content Remove="stylecop.json" />
 	</ItemGroup>
@@ -29,10 +36,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Scripts\" />
+		<AdditionalFiles Include=".ai\*" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<AdditionalFiles Include=".ai\*" />
+	  <Compile Remove="Scripts\**" />
+	  <Content Remove="Scripts\**" />
+	  <EmbeddedResource Remove="Scripts\**" />
+	  <None Remove="Scripts\**" />
 	</ItemGroup>
 </Project>

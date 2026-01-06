@@ -26,6 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PromptHub.Web.UnitTests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{5EA333CD-CAF7-4030-B846-F6D26761046B}"
 	ProjectSection(SolutionItems) = preProject
+		scripts\1-tablestorage.ps1 = scripts\1-tablestorage.ps1
 		scripts\config.ps1 = scripts\config.ps1
 	EndProjectSection
 EndProject

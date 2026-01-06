@@ -39,7 +39,7 @@ The application is intended to be deployed to **Azure App Service** and secured 
   - **Azure Table Storage**
     - Prompts (with soft delete via `IsDeleted`)
     - Votes (per-user vote state)
-    - Tag catalog (predefined list loaded from configuration)
+    - Tag catalog (predefined list stored in Table Storage)
   - Design expectations: avoid table scans, use continuation tokens for pagination, retry with exponential backoff on throttling (HTTP 429)
 - **Observability**
   - Structured logging for failures in key operations (CRUD, voting, AI suggestions)
@@ -50,7 +50,7 @@ The application is intended to be deployed to **Azure App Service** and secured 
 ## Getting started locally
 ### Prerequisites
 - **Visual Studio 2022** with the ASP.NET workload, or the **.NET 9 SDK**
-- Access to the project’s **Azure Entra ID** tenant (single-tenant app)
+- Access to the projectï¿½s **Azure Entra ID** tenant (single-tenant app)
 - (Optional, for storage) **Azurite** or an Azure Storage account for Table Storage
 
 ### Run the app
@@ -62,7 +62,20 @@ The application is intended to be deployed to **Azure App Service** and secured 
 ### Configuration notes (MVP assumptions)
 - The app requires sign-in before rendering any application pages/data.
 - Authorization is role-gated via a global policy requiring the configured **member app role**.
-- Tag catalog is loaded from configuration; tags are stored/displayed in lower-case and users cannot create new tags in the MVP.
+ - Tag catalog is stored in Azure Table Storage (`TagCatalog`); tags are stored/displayed in lower-case and users cannot create new tags in the MVP.
+
+## Provisioning scripts
+
+PowerShell helper scripts are available in `scripts` to provision Azure resources required by the app.
+
+- `scripts/1-tablestorage.ps1` creates the Azure Table Storage tables defined in `PromptHub.Web/.ai/4-db-plan.md`.
+  - Prerequisites: Azure CLI (`az`) installed and logged in.
+  - Configuration: update values in `scripts/config.ps1` (subscription, resource group, storage account).
+  - Run:
+    - From the repository root:
+      - `pwsh ./scripts/1-tablestorage.ps1 -ConfigPath ./scripts/config.ps1`
+
+> Note: `scripts/config.ps1` is treated as local-only configuration and is excluded from build/publish outputs.
 
 > Missing details for a fully copy/paste local setup: exact `appsettings.json` keys for Entra ID, Table Storage connection settings, and the required app role name/value.
 
