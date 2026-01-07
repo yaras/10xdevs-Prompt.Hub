@@ -1,4 +1,4 @@
-# Microsoft Entra External ID (CIAM) Integration Plan for Blazor Server Application
+﻿# Microsoft Entra External ID (CIAM) Integration Plan for Blazor Server Application
 
 ## Overview
 This document outlines the step-by-step process to integrate **Microsoft Entra External ID (CIAM)** with the PromptHub Blazor Server application.
@@ -59,13 +59,37 @@ This plan is aligned with the MVP requirements:
    - Google
 3. Ensure the provider configuration is enabled for the tenant
 
+### Step 5a: Ensure the tenant allows end-user sign-up (registration)
+If you don’t see a **Sign up** option on the hosted sign-in page, it is usually caused by one of these tenant/user-flow settings:
+
+1. **You created a “Sign in” only flow**
+   - Fix: Create a **Sign up and sign in** flow (not “Sign in”).
+
+2. **Local accounts are disabled** (email + password registration)
+   - Fix: In the External ID tenant, go to **External Identities** / **Identity providers** and ensure **Email accounts** (sometimes shown as **Email with password** or **Local accounts**) is enabled **if you want users to create accounts with email/password**.
+   - If you only want social sign-up (Microsoft/Google), you can keep local accounts disabled; sign-up happens when the user uses the social provider the first time.
+
+3. **The user flow app association is wrong**
+   - Fix: Ensure your application is added/associated to the user flow (some portal UIs have an **Applications** tab inside the user flow).
+
+4. **The sign-up link is hidden by user flow page layout settings**
+   - Fix: In the user flow, check **Page layouts** (or similar UX settings) and ensure the **Sign up** link is enabled/shown.
+
+5. **Your app isn’t using the user flow/policy in the authority**
+   - Fix: Ensure the app uses the authority/issuer that includes the user flow/policy for the hosted UI (see Step 6 and Step 10). If the authority does not reference a sign-up-and-sign-in user flow, the UI may present sign-in only.
+
+> Expected behavior:
+> - **If local accounts (email/password) are enabled** AND you use a **Sign up and sign in** user flow → the hosted UI shows a **Sign up** link.
+> - **If only social providers are enabled** → you may not see a separate “Sign up” link; the first social login creates the account automatically.
+
 ### Step 5b: Create a User Flow (Sign up and sign in) and enable the providers
 Many External ID tenant configurations require a **user flow** to control which identity providers appear on the hosted sign-in UI.
 
 1. Navigate to **External Identities** / **User flows**
 2. Create a **Sign up and sign in** user flow
 3. Enable the identity providers you configured (Microsoft + Google)
-4. Save/publish the user flow settings
+4. (Optional) Enable **Email accounts / Local accounts** if you want email+password registration
+5. Save/publish the user flow settings
 
 ### Step 6: Identify the correct CIAM authority host
 CIAM tenants use `ciamlogin.com` endpoints.
@@ -151,6 +175,12 @@ Validate stable user id:
 
 **Issue: Redirect URI mismatch**
 - Ensure app registration Redirect URI matches your local HTTPS URL exactly
+
+**Issue: No “Sign up” option on the hosted sign-in page**
+- Confirm you created a **Sign up and sign in** user flow (not sign-in only)
+- If you want email+password registration, confirm **Email accounts / Local accounts** is enabled in **Identity providers** and enabled in the user flow
+- If you only want social providers, note that the first Google/Microsoft login effectively registers the user (no separate sign-up link)
+- Confirm the app is actually using the correct issuer/authority for the user flow (copy the **Issuer URI** / **OpenID Connect metadata** URL from the user flow blade)
 
 ---
 
