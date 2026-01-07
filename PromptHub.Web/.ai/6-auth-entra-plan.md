@@ -24,7 +24,7 @@ This plan is aligned with the MVP requirements:
 ### Step 1: Create Entra External ID Tenant
 1. Navigate to [Azure Portal](https://portal.azure.com)
 2. Search for "Microsoft Entra External ID"
-3. Create a new External ID tenant
+3. Create a new **External ID (customer)** tenant (CIAM)
 4. Switch to the newly created tenant (directory switcher)
 
 ### Step 2: Register the Blazor Application
@@ -32,6 +32,7 @@ This plan is aligned with the MVP requirements:
 2. Click **New registration**
 3. Configure the application:
    - **Name**: PromptHub Web Application
+   - **Supported account types**: the option appropriate for your **External ID** tenant (customer identities)
    - **Redirect URI (Web)**: `https://{DEV_HOST}:{DEV_HTTPS_PORT}/signin-oidc`
 4. Click **Register**
 5. Save:
@@ -49,6 +50,7 @@ This plan is aligned with the MVP requirements:
    - `https://{DEV_HOST}:{DEV_HTTPS_PORT}/signin-oidc`
 3. Add Logout URL:
    - `https://{DEV_HOST}:{DEV_HTTPS_PORT}/signout-callback-oidc`
+4. Confirm the app is configured as a **Web** platform and uses the standard **Authorization Code** flow (OIDC middleware). Avoid enabling implicit flow unless you have a specific requirement.
 
 ### Step 5: Configure Social Identity Providers (Microsoft + Google)
 1. Navigate to **External Identities** / **Identity providers** (portal UX may vary)
@@ -56,6 +58,14 @@ This plan is aligned with the MVP requirements:
    - Microsoft Account
    - Google
 3. Ensure the provider configuration is enabled for the tenant
+
+### Step 5b: Create a User Flow (Sign up and sign in) and enable the providers
+Many External ID tenant configurations require a **user flow** to control which identity providers appear on the hosted sign-in UI.
+
+1. Navigate to **External Identities** / **User flows**
+2. Create a **Sign up and sign in** user flow
+3. Enable the identity providers you configured (Microsoft + Google)
+4. Save/publish the user flow settings
 
 ### Step 6: Identify the correct CIAM authority host
 CIAM tenants use `ciamlogin.com` endpoints.
@@ -65,6 +75,8 @@ In the app registration:
 2. Locate an endpoint that references `https://{tenant}.ciamlogin.com/...`
 3. The authority host is the base:
    - `https://{tenant}.ciamlogin.com/`
+4. For OIDC in this app, the Authority commonly resolves to:
+   - `https://{tenant}.ciamlogin.com/{TenantId}/v2.0`
 
 ---
 
