@@ -56,8 +56,8 @@
 
                         <MudCardActions>
                             <MudStack Row="true" Spacing="2">
-                                <MudText Typo="Typo.caption">?? @prompt.Likes</MudText>
-                                <MudText Typo="Typo.caption">?? @prompt.Dislikes</MudText>
+                                <MudButton StartIcon="@Icons.Material.Filled.ThumbUp" Size="Size.Small" Color="Color.Success" Typo="Typo.caption">@prompt.Likes</MudButton>
+                                <MudButton StartIcon="@Icons.Material.Filled.ThumbDown" Size="Size.Small" Color="Color.Error" Typo="Typo.caption">@prompt.Dislikes</MudButton>
                             </MudStack>
                         </MudCardActions>
                     </MudCard>
@@ -73,8 +73,8 @@
         }
     }
 
-    <MudFab Icon="@Icons.Material.Filled.Add"
-            Color="Color.Primary"
+    <MudFab 
             Style="position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 1000;"
+            Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
             OnClick="this.OpenCreateDialogAsync" />
 </MudContainer>
