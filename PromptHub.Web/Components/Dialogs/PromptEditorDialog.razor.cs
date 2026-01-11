@@ -4,6 +4,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
@@ -124,6 +125,7 @@ public sealed partial class PromptEditorDialog : ComponentBase
         }
 
         this.NewTag = null;
+        this.StateHasChanged();
     }
 
     protected void RemoveTag(string tag) => this.Model.Tags.Remove(tag);
@@ -221,6 +223,14 @@ public sealed partial class PromptEditorDialog : ComponentBase
         finally
         {
             this.IsLoading = false;
+        }
+    }
+
+    private static IEnumerable<string> MaxCharacters(string ch, int max)
+    {
+        if (!string.IsNullOrEmpty(ch) && max < ch?.Length)
+        {
+            yield return $"Max {max} characters";
         }
     }
 }

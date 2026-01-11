@@ -33,10 +33,17 @@
             @foreach (var prompt in this.Prompts)
             {
                 <MudItem xs="12" sm="6" md="4" lg="3" @key="prompt.PromptId">
-                    <MudCard Style="cursor:pointer;" OnClick="() => this.OpenEditDialogAsync(prompt.PromptId)">
-                        <MudCardContent>
-                            <MudText Typo="Typo.h6" GutterBottom="true">@prompt.Title</MudText>
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@prompt.Title</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Default" OnClick="() => this.OpenEditDialogAsync(prompt.PromptId)" />
+                            </CardHeaderActions>
+                        </MudCardHeader>
 
+                        <MudCardContent>
                             <MudStack Row="true" Spacing="1" Class="mb-2" Style="flex-wrap:wrap;">
                                 @foreach (var tag in prompt.Tags)
                                 {
@@ -56,8 +63,8 @@
 
                         <MudCardActions>
                             <MudStack Row="true" Spacing="2">
-                                <MudText Typo="Typo.caption">?? @prompt.Likes</MudText>
-                                <MudText Typo="Typo.caption">?? @prompt.Dislikes</MudText>
+                                <MudButton StartIcon="@Icons.Material.Filled.ThumbUp" Size="Size.Small" Color="Color.Success" Typo="Typo.caption">@prompt.Likes</MudButton>
+                                <MudButton StartIcon="@Icons.Material.Filled.ThumbDown" Size="Size.Small" Color="Color.Error" Typo="Typo.caption">@prompt.Dislikes</MudButton>
                             </MudStack>
                         </MudCardActions>
                     </MudCard>
@@ -73,8 +80,8 @@
         }
     }
 
-    <MudFab Icon="@Icons.Material.Filled.Add"
-            Color="Color.Primary"
+    <MudFab 
             Style="position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 1000;"
+            Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
             OnClick="this.OpenCreateDialogAsync" />
 </MudContainer>
