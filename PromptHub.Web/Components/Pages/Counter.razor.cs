@@ -2,10 +2,12 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 
 namespace PromptHub.Web.Components.Pages;
 
+[Authorize]
 /// <summary>
 /// Provides a simple counter demo page.
 /// </summary>

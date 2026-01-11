@@ -2,6 +2,9 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
 using PromptHub.Web.Components;
 
 namespace PromptHub.Web;
@@ -23,6 +26,31 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+            .AddMicrosoftIdentityWebApp(options =>
+            {
+                builder.Configuration.Bind("AzureAd", options);
+
+                if (!string.IsNullOrWhiteSpace(options.Instance) && !string.IsNullOrWhiteSpace(options.TenantId))
+                {
+                    options.Authority = $"{options.Instance.TrimEnd('/')}/{options.TenantId}/v2.0";
+                }
+            });
+
+        builder.Services.AddAuthorization(options =>
+        {
+            options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+        });
+
+        builder.Services.AddCascadingAuthenticationState();
+        builder.Services
+            .AddControllersWithViews()
+            .AddMicrosoftIdentityUI();
+
+        builder.Services.AddRazorPages();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -39,6 +67,18 @@ public class Program
         app.UseAntiforgery();
 
         app.MapStaticAssets();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.MapControllers();
+
+        app.MapRazorPages();
+
+        app.MapControllerRoute(
+            name: "MicrosoftIdentity",
+            pattern: "MicrosoftIdentity/{controller=Account}/{action=SignIn}/{id?}");
+
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 

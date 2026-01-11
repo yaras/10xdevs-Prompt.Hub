@@ -7,7 +7,8 @@
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-	</PropertyGroup>
+	  <UserSecretsId>5f81c4d9-a590-41d7-9e6a-7dc595b5677d</UserSecretsId>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Update="..\\scripts\\config.ps1">
@@ -26,6 +27,9 @@
 
 	<ItemGroup>
 		<PackageReference Include="MudBlazor" Version="8.15.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="2.*" />
+		<PackageReference Include="Microsoft.Identity.Web.UI" Version="2.*" />
 		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
