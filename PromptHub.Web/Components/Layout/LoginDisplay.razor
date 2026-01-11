@@ -6,9 +6,14 @@
         <span class="navbar-text me-2">
             <strong>@context.User.Identity?.Name</strong>
         </span>
-        <MudLink Href="MicrosoftIdentity/Account/SignOut" Class="navbar-text nav-link">
-            Log out
-        </MudLink>
+
+        <MudIconButton
+            Icon="@Icons.Material.Filled.Logout"
+            Href="MicrosoftIdentity/Account/SignOut"
+            Variant="Variant.Text"
+            Size="Size.Medium"
+            Title="Log out" 
+            AriaLabel="Log out" />
     </Authorized>
     <NotAuthorized> 
         <MudLink Href="MicrosoftIdentity/Account/SignIn" Class="navbar-text nav-link">

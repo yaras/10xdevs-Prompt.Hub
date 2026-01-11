@@ -3,6 +3,7 @@
 
 @using MudBlazor
 @using PromptHub.Web.Application.Models.Prompts
+@using PromptHub.Web.Components.Prompts
 
 <MudContainer MaxWidth="MaxWidth.False" Class="pt-4">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
@@ -33,46 +34,7 @@
             @foreach (var prompt in this.Prompts)
             {
                 <MudItem xs="12" sm="6" md="4" lg="3" @key="prompt.PromptId">
-                    <MudCard>
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.h6">@prompt.Title</MudText>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Default" OnClick="() => this.OpenEditDialogAsync(prompt.PromptId)" />
-                            </CardHeaderActions>
-                        </MudCardHeader>
-
-                        <MudCardContent>
-                            @if (!string.IsNullOrWhiteSpace(prompt.AuthorEmail))
-                            {
-                                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">@prompt.AuthorEmail</MudText>
-                            }
-
-                            <MudStack Row="true" Spacing="1" Class="mb-2" Style="flex-wrap:wrap;">
-                                @foreach (var tag in prompt.Tags)
-                                {
-                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@tag</MudChip>
-                                }
-                            </MudStack>
-
-                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                                <MudChip T="string" Size="Size.Small" Color="@(prompt.Visibility == PromptVisibility.Public ? Color.Success : Color.Default)">
-                                    @prompt.Visibility
-                                </MudChip>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                    Updated @prompt.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd")
-                                </MudText>
-                            </MudStack>
-                        </MudCardContent>
-
-                        <MudCardActions>
-                            <MudStack Row="true" Spacing="2">
-                                <MudButton StartIcon="@Icons.Material.Filled.ThumbUp" Size="Size.Small" Color="Color.Success" Typo="Typo.caption">@prompt.Likes</MudButton>
-                                <MudButton StartIcon="@Icons.Material.Filled.ThumbDown" Size="Size.Small" Color="Color.Error" Typo="Typo.caption">@prompt.Dislikes</MudButton>
-                            </MudStack>
-                        </MudCardActions>
-                    </MudCard>
+                    <PromptCard Prompt="prompt" CurrentUserAuthorId="this.CurrentUserAuthorId" ShowEdit="true" OnEdit="this.OpenEditDialogAsync" />
                 </MudItem>
             }
         </MudGrid>

@@ -41,6 +41,8 @@ public sealed partial class MyPrompts : ComponentBase
     /// </summary>
     protected List<PromptSummaryModel> Prompts { get; } = new();
 
+    protected string? CurrentUserAuthorId { get; private set; }
+
     /// <summary>
     /// Gets a value indicating whether the page is loading.
     /// </summary>
@@ -64,6 +66,7 @@ public sealed partial class MyPrompts : ComponentBase
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
     {
+        this.CurrentUserAuthorId = await this.TryGetAuthorIdAsync();
         await this.ReloadAsync();
     }
 
@@ -79,7 +82,8 @@ public sealed partial class MyPrompts : ComponentBase
             this.IsLoadingMore = true;
             this.ErrorMessage = null;
 
-            var authorId = await this.TryGetAuthorIdAsync();
+            var authorId = this.CurrentUserAuthorId ?? await this.TryGetAuthorIdAsync();
+            this.CurrentUserAuthorId ??= authorId;
             if (authorId is null)
             {
                 return;
@@ -165,7 +169,8 @@ public sealed partial class MyPrompts : ComponentBase
             this.IsLoading = true;
             this.ErrorMessage = null;
 
-            var authorId = await this.TryGetAuthorIdAsync();
+            var authorId = this.CurrentUserAuthorId ?? await this.TryGetAuthorIdAsync();
+            this.CurrentUserAuthorId ??= authorId;
             if (authorId is null)
             {
                 return;

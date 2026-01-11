@@ -1,8 +1,54 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider />
+<MudThemeProvider IsDarkMode="true" />
 
-<div class="page">
+<MudLayout>
+    <MudAppBar>
+        <MudGrid Justify="Justify.FlexStart" AlignItems="AlignItems.Center" Class="d-flex align-center" Spacing="0">
+            <MudItem Class="d-flex align-center" Style="padding-right:0;">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            </MudItem>
+
+            <MudItem Class="d-flex align-center" Style="padding-left:0;">
+                <MudText Class="my-0 ml-1">PromptHub</MudText>
+            </MudItem>
+
+            <MudItem Class="flex-grow-1" />
+
+            <MudItem Class="d-flex">
+                <MudText Align="Align.Right" Class="my-1"><LoginDisplay /></MudText>
+            </MudItem>
+        </MudGrid>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+@code {
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}
+
+@* <MudLayout>
+    <MudAppBar>
+        PromptHub
+    </MudAppBar>
+    <MudDrawer Open="true">
+
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout> *@
+
+@* <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
@@ -16,7 +62,7 @@
             @Body
         </article>
     </main>
-</div>
+</div> *@
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
