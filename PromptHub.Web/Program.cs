@@ -5,7 +5,9 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using MudBlazor.Services;
 using PromptHub.Web.Components;
+using PromptHub.Web.Infrastructure.DI;
 
 namespace PromptHub.Web;
 
@@ -25,6 +27,8 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
+
+        builder.Services.AddMudServices();
 
         builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApp(options =>
@@ -50,6 +54,8 @@ public class Program
             .AddMicrosoftIdentityUI();
 
         builder.Services.AddRazorPages();
+
+        builder.Services.AddTableStorage(builder.Configuration);
 
         var app = builder.Build();
 

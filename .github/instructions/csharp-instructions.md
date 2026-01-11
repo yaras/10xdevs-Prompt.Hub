@@ -9,3 +9,7 @@ When writing C# code, follow these guidelines to ensure clarity, maintainability
 - expect docs for all public class members
 - expect docs for all public classes
 - ensure StyleCop rules are followed
+- use spaces instead of tabs
+- prefix local calls with this
+- add a file header at the top of each cs file
+- use trailing comma in multi-line initializers

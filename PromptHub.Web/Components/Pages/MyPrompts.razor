@@ -1,0 +1,80 @@
+@page "/my-prompts"
+@rendermode InteractiveServer
+
+@using MudBlazor
+@using PromptHub.Web.Application.Models.Prompts
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pt-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h4">My prompts</MudText>
+    </MudStack>
+
+    @if (!string.IsNullOrWhiteSpace(this.ErrorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Dense="true" Class="mt-4">@this.ErrorMessage</MudAlert>
+    }
+    else if (this.IsLoading)
+    {
+        <MudStack Class="mt-8" AlignItems="AlignItems.Center" Justify="Justify.Center">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+        </MudStack>
+    }
+    else if (this.Prompts.Count == 0)
+    {
+        <MudStack Class="mt-8" Spacing="2" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">No prompts yet</MudText>
+            <MudText Color="Color.Secondary">Create your first prompt to start sharing and reusing ideas.</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="this.OpenCreateDialogAsync">Create prompt</MudButton>
+        </MudStack>
+    }
+    else
+    {
+        <MudGrid Class="mt-4">
+            @foreach (var prompt in this.Prompts)
+            {
+                <MudItem xs="12" sm="6" md="4" lg="3" @key="prompt.PromptId">
+                    <MudCard Style="cursor:pointer;" OnClick="() => this.OpenEditDialogAsync(prompt.PromptId)">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" GutterBottom="true">@prompt.Title</MudText>
+
+                            <MudStack Row="true" Spacing="1" Class="mb-2" Style="flex-wrap:wrap;">
+                                @foreach (var tag in prompt.Tags)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@tag</MudChip>
+                                }
+                            </MudStack>
+
+                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                <MudChip T="string" Size="Size.Small" Color="@(prompt.Visibility == PromptVisibility.Public ? Color.Success : Color.Default)">
+                                    @prompt.Visibility
+                                </MudChip>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    Updated @prompt.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd")
+                                </MudText>
+                            </MudStack>
+                        </MudCardContent>
+
+                        <MudCardActions>
+                            <MudStack Row="true" Spacing="2">
+                                <MudText Typo="Typo.caption">?? @prompt.Likes</MudText>
+                                <MudText Typo="Typo.caption">?? @prompt.Dislikes</MudText>
+                            </MudStack>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+
+        @if (this.CanLoadMore)
+        {
+            <MudStack Class="mt-6" AlignItems="AlignItems.Center">
+                <MudButton Variant="Variant.Outlined" OnClick="this.LoadMoreAsync" Disabled="this.IsLoadingMore">Load more</MudButton>
+            </MudStack>
+        }
+    }
+
+    <MudFab Icon="@Icons.Material.Filled.Add"
+            Color="Color.Primary"
+            Style="position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 1000;"
+            OnClick="this.OpenCreateDialogAsync" />
+</MudContainer>

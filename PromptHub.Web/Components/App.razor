@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -7,7 +9,12 @@
     <base href="/" />
     <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" rel="stylesheet" />
     <link rel="stylesheet" href="@Assets["PromptHub.Web.styles.css"]" />
+    <script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
+
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
     <HeadOutlet />
@@ -15,7 +22,7 @@
 
 <body>
     <CascadingAuthenticationState>
-        <Routes />
+        <Routes @rendermode="InteractiveServer" />
     </CascadingAuthenticationState>
     <script src="_framework/blazor.web.js"></script>
 </body>

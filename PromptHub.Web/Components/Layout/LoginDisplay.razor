@@ -4,7 +4,7 @@
 <AuthorizeView>
     <Authorized>
         <span class="navbar-text me-2">
-            Hello, <strong>@context.User.Identity?.Name!</strong>
+            <strong>@context.User.Identity?.Name</strong>
         </span>
         <MudLink Href="MicrosoftIdentity/Account/SignOut" Class="navbar-text nav-link">
             Log out
