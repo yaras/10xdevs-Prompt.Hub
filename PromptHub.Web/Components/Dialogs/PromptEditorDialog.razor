@@ -1,0 +1,60 @@
+@using MudBlazor
+@using PromptHub.Web.Application.Models.Prompts
+
+<MudDialog>
+    <DialogContent>
+        @if (this.IsLoading)
+        {
+            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="my-6">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            </MudStack>
+        }
+        else
+        {
+            <MudForm @ref="this.Form" Model="this.Model">
+                <MudTextField @bind-Value="this.Model.Title"
+                              Label="Title"
+                              Required="true"
+                              RequiredError="Title is required"
+                              Immediate="true" />
+
+                <MudTextField @bind-Value="this.Model.PromptText"
+                              Label="Content"
+                              Lines="8"
+                              Required="true"
+                              RequiredError="Content is required"
+                              Immediate="true" />
+
+                <MudChipSet T="string" MultiSelection="true" Class="mt-2">
+                    @foreach (var tag in this.Model.Tags)
+                    {
+                        <MudChip T="string" Text="@tag" OnClose="() => this.RemoveTag(tag)" Closeable="true" />
+                    }
+                </MudChipSet>
+
+                <MudStack Row="true" Spacing="2" Class="mt-2" AlignItems="AlignItems.End">
+                    <MudTextField @bind-Value="this.NewTag"
+                                  Label="Add tag"
+                                  Placeholder="e.g. writing"
+                                  Immediate="true" />
+                    <MudButton Variant="Variant.Outlined" OnClick="this.AddTag" Disabled="@string.IsNullOrWhiteSpace(this.NewTag)">Add</MudButton>
+                </MudStack>
+
+                <MudSelect T="PromptVisibility" Label="Visibility" @bind-Value="this.Model.Visibility" Class="mt-4">
+                    <MudSelectItem Value="PromptVisibility.Private">Private</MudSelectItem>
+                    <MudSelectItem Value="PromptVisibility.Public">Public</MudSelectItem>
+                </MudSelect>
+
+                @if (!string.IsNullOrWhiteSpace(this.ErrorMessage))
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="mt-4">@this.ErrorMessage</MudAlert>
+                }
+            </MudForm>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="this.Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="this.SaveAsync" Disabled="this.IsLoading">Save</MudButton>
+    </DialogActions>
+</MudDialog>
