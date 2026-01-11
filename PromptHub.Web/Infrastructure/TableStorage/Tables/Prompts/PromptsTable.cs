@@ -57,6 +57,19 @@ public sealed class PromptsTable
     }
 
     /// <summary>
+    /// Queries a single partition.
+    /// </summary>
+    /// <param name="partitionKey">The partition key to query.</param>
+    /// <param name="maxPerPage">The maximum number of items per page.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An async pageable sequence scoped to the partition.</returns>
+    public AsyncPageable<PromptEntity> QueryPartitionAsync(
+        string partitionKey,
+        int maxPerPage,
+        CancellationToken cancellationToken) =>
+        this.table.QueryAsync<PromptEntity>(x => x.PartitionKey == partitionKey, maxPerPage: maxPerPage, cancellationToken: cancellationToken);
+
+    /// <summary>
     /// Adds an entity.
     /// </summary>
     /// <param name="entity">The entity to add.</param>

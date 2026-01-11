@@ -4,6 +4,7 @@
 
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
+using Azure.Data.Tables;
 using PromptHub.Web.Infrastructure.TableStorage.Mapping;
 using PromptHub.Web.Infrastructure.TableStorage.Pagination;
 using PromptHub.Web.Infrastructure.TableStorage.Tables.Prompts;
@@ -46,9 +47,48 @@ public sealed class TablePromptReadStore(
         int pageSize,
         CancellationToken ct)
     {
-        // MVP placeholder: implement when we add Table Storage query paging for user partition.
-        await Task.CompletedTask;
-        return new ContinuationPage<PromptSummaryModel>(Array.Empty<PromptSummaryModel>(), null);
+        if (pageSize <= 0)
+        {
+            return new ContinuationPage<PromptSummaryModel>(Array.Empty<PromptSummaryModel>(), null);
+        }
+
+        var pk = KeyFormat.PromptsPartitionKey(authorId);
+
+        var results = new List<PromptSummaryModel>(pageSize);
+
+        var pages = promptsTable
+            .QueryPartitionAsync(pk, maxPerPage: pageSize, cancellationToken: ct)
+            .AsPages(continuationToken: token?.Token, pageSizeHint: pageSize);
+
+        await foreach (var page in pages.WithCancellation(ct))
+        {
+            foreach (var entity in page.Values)
+            {
+                if (entity.IsDeleted)
+                {
+                    continue;
+                }
+
+                results.Add(new PromptSummaryModel(
+                    PromptId: entity.PromptId,
+                    AuthorId: entity.AuthorId,
+                    Title: entity.Title,
+                    Tags: TagString.ToTags(entity.Tags),
+                    Visibility: PromptVisibilityMapper.ToModel(entity.Visibility),
+                    CreatedAt: entity.CreatedAt,
+                    UpdatedAt: entity.UpdatedAt,
+                    Likes: entity.Likes,
+                    Dislikes: entity.Dislikes));
+            }
+
+            ContinuationToken? next = string.IsNullOrWhiteSpace(page.ContinuationToken)
+                ? null
+                : new ContinuationToken(page.ContinuationToken);
+
+            return new ContinuationPage<PromptSummaryModel>(results, next);
+        }
+
+        return new ContinuationPage<PromptSummaryModel>(results, null);
     }
 
     /// <inheritdoc />
