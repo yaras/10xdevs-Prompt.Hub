@@ -28,7 +28,7 @@
                 <MudChipSet T="string" MultiSelection="true" Class="mt-2">
                     @foreach (var tag in this.Model.Tags)
                     {
-                        <MudChip T="string" Text="@tag" OnClose="() => this.RemoveTag(tag)" Closeable="true" />
+                        <MudChip T="string" text="@tag" onclose="() => this.RemoveTag(tag)" closeable="true" />
                     }
                 </MudChipSet>
 

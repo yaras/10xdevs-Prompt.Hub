@@ -36,6 +36,7 @@ public static class TableStorageServiceCollectionExtensions
         services.AddScoped<PublicPromptsNewestIndexTable>();
 
         services.AddScoped<IPromptReadStore, TablePromptReadStore>();
+        services.AddScoped<IPromptWriteStore, TablePromptWriteStore>();
 
         return services;
     }

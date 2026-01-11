@@ -33,6 +33,9 @@ public sealed partial class MyPrompts : ComponentBase
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = default!;
+
     /// <summary>
     /// Gets the prompts for the current author.
     /// </summary>
