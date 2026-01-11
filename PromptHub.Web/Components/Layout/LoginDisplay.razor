@@ -1,17 +1,18 @@
 @using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 
 <AuthorizeView>
     <Authorized>
         <span class="navbar-text me-2">
-            Hello, @context.User.Identity?.Name!
+            Hello, <strong>@context.User.Identity?.Name!</strong>
         </span>
-        <a href="MicrosoftIdentity/Account/SignOut" class="nav-link">
+        <MudLink Href="MicrosoftIdentity/Account/SignOut" Class="navbar-text nav-link">
             Log out
-        </a>
+        </MudLink>
     </Authorized>
-    <NotAuthorized>
-        <a href="MicrosoftIdentity/Account/SignIn" class="nav-link">
+    <NotAuthorized> 
+        <MudLink Href="MicrosoftIdentity/Account/SignIn" Class="navbar-text nav-link">
             Log in
-        </a>
+        </MudLink>
     </NotAuthorized>
 </AuthorizeView>
