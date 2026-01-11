@@ -33,10 +33,17 @@
             @foreach (var prompt in this.Prompts)
             {
                 <MudItem xs="12" sm="6" md="4" lg="3" @key="prompt.PromptId">
-                    <MudCard Style="cursor:pointer;" OnClick="() => this.OpenEditDialogAsync(prompt.PromptId)">
-                        <MudCardContent>
-                            <MudText Typo="Typo.h6" GutterBottom="true">@prompt.Title</MudText>
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@prompt.Title</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Default" OnClick="() => this.OpenEditDialogAsync(prompt.PromptId)" />
+                            </CardHeaderActions>
+                        </MudCardHeader>
 
+                        <MudCardContent>
                             <MudStack Row="true" Spacing="1" Class="mb-2" Style="flex-wrap:wrap;">
                                 @foreach (var tag in prompt.Tags)
                                 {

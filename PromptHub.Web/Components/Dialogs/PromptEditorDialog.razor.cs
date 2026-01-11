@@ -4,6 +4,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
@@ -124,9 +125,20 @@ public sealed partial class PromptEditorDialog : ComponentBase
         }
 
         this.NewTag = null;
+        this.StateHasChanged();
     }
 
     protected void RemoveTag(string tag) => this.Model.Tags.Remove(tag);
+
+    protected async Task OnNewTagKeyDown(KeyboardEventArgs args)
+    {
+        if (string.Equals(args.Key, "Enter", StringComparison.OrdinalIgnoreCase))
+        {
+            this.AddTag();
+        }
+
+        await Task.CompletedTask;
+    }
 
     protected async Task SaveAsync()
     {

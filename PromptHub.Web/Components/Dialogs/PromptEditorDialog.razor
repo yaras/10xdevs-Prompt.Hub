@@ -33,10 +33,14 @@
                 </MudChipSet>
 
                 <MudStack Row="true" Spacing="2" Class="mt-2" AlignItems="AlignItems.End">
-                    <MudTextField @bind-Value="this.NewTag"
-                                  Label="Add tag"
-                                  Placeholder="e.g. writing"
-                                  Immediate="true" />
+                    <div>
+                        <MudTextField @bind-Value="this.NewTag"
+                                      Label="Add tag"
+                                      Placeholder="e.g. writing"
+                                      @onkeydown="this.OnNewTagKeyDown"
+                                      KeyDownPreventDefault="true"
+                                      Immediate="true" />
+                    </div>
                     <MudButton Variant="Variant.Outlined" OnClick="this.AddTag" Disabled="@string.IsNullOrWhiteSpace(this.NewTag)">Add</MudButton>
                 </MudStack>
 
