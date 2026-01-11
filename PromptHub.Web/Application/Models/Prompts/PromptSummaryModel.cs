@@ -1,3 +1,7 @@
+// <copyright file="PromptSummaryModel.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 namespace PromptHub.Web.Application.Models.Prompts;
 
 /// <summary>

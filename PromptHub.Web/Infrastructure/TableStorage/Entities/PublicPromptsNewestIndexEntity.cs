@@ -1,3 +1,7 @@
+// <copyright file="PublicPromptsNewestIndexEntity.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using Azure;
 using Azure.Data.Tables;
 

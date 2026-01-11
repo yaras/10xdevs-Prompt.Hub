@@ -1,7 +1,10 @@
+// <copyright file="ContinuationToken.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 namespace PromptHub.Web.Application.Abstractions.Persistence;
 
 /// <summary>
-/// Represents an opaque continuation token used for pagination.
+/// Represents a continuation token for paginated queries.
 /// </summary>
-/// <param name="Value">The serialized token value.</param>
-public sealed record ContinuationToken(string Value);
+public sealed record ContinuationToken(string Token);

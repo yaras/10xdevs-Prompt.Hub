@@ -1,3 +1,7 @@
+// <copyright file="PromptsTable.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
@@ -22,7 +26,7 @@ public sealed class PromptsTable
     public PromptsTable(ITableServiceClientFactory factory, IOptions<TableStorageOptions> options)
     {
         var serviceClient = factory.Create();
-        table = serviceClient.GetTableClient(options.Value.PromptsTableName);
+        this.table = serviceClient.GetTableClient(options.Value.PromptsTableName);
     }
 
     /// <summary>
@@ -30,7 +34,7 @@ public sealed class PromptsTable
     /// </summary>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task CreateIfNotExistsAsync(CancellationToken ct) => table.CreateIfNotExistsAsync(ct);
+    public Task CreateIfNotExistsAsync(CancellationToken ct) => this.table.CreateIfNotExistsAsync(ct);
 
     /// <summary>
     /// Gets a prompt entity by partition key and row key.
@@ -43,7 +47,7 @@ public sealed class PromptsTable
     {
         try
         {
-            var response = await table.GetEntityAsync<PromptEntity>(partitionKey, rowKey, cancellationToken: ct);
+            var response = await this.table.GetEntityAsync<PromptEntity>(partitionKey, rowKey, cancellationToken: ct);
             return response.Value;
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
@@ -58,7 +62,7 @@ public sealed class PromptsTable
     /// <param name="entity">The entity to add.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task AddAsync(PromptEntity entity, CancellationToken ct) => table.AddEntityAsync(entity, ct);
+    public Task AddAsync(PromptEntity entity, CancellationToken ct) => this.table.AddEntityAsync(entity, ct);
 
     /// <summary>
     /// Upserts an entity.
@@ -66,7 +70,7 @@ public sealed class PromptsTable
     /// <param name="entity">The entity to upsert.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task UpsertAsync(PromptEntity entity, CancellationToken ct) => table.UpsertEntityAsync(entity, TableUpdateMode.Replace, ct);
+    public Task UpsertAsync(PromptEntity entity, CancellationToken ct) => this.table.UpsertEntityAsync(entity, TableUpdateMode.Replace, ct);
 
     /// <summary>
     /// Updates an entity using optimistic concurrency.
@@ -76,5 +80,5 @@ public sealed class PromptsTable
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task UpdateAsync(PromptEntity entity, ETag etag, CancellationToken ct) =>
-        table.UpdateEntityAsync(entity, etag, TableUpdateMode.Replace, ct);
+        this.table.UpdateEntityAsync(entity, etag, TableUpdateMode.Replace, ct);
 }

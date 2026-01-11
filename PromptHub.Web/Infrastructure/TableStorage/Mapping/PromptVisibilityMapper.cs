@@ -1,3 +1,7 @@
+// <copyright file="PromptVisibilityMapper.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using PromptHub.Web.Application.Models.Prompts;
 
 namespace PromptHub.Web.Infrastructure.TableStorage.Mapping;

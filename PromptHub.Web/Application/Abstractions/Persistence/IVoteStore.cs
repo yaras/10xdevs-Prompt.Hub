@@ -1,3 +1,7 @@
+// <copyright file="IVoteStore.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using PromptHub.Web.Application.Models.Votes;
 
 namespace PromptHub.Web.Application.Abstractions.Persistence;

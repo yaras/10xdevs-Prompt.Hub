@@ -1,3 +1,7 @@
+// <copyright file="VoteValue.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 namespace PromptHub.Web.Application.Models.Votes;
 
 /// <summary>

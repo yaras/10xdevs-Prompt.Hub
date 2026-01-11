@@ -1,3 +1,7 @@
+// <copyright file="PromptVisibility.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 namespace PromptHub.Web.Application.Models.Prompts;
 
 /// <summary>
@@ -6,12 +10,12 @@ namespace PromptHub.Web.Application.Models.Prompts;
 public enum PromptVisibility
 {
     /// <summary>
-    /// The prompt is visible only to its author.
+    /// The prompt is private.
     /// </summary>
-    Private = 0,
+    Private,
 
     /// <summary>
-    /// The prompt is visible to all authenticated users.
+    /// The prompt is public.
     /// </summary>
-    Public = 1,
+    Public,
 }

@@ -1,3 +1,7 @@
+// <copyright file="TablePromptReadStore.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
 using PromptHub.Web.Infrastructure.TableStorage.Mapping;
@@ -58,7 +62,7 @@ public sealed class TablePromptReadStore(
 
         NewestPublicContinuationToken state = token is null
             ? new NewestPublicContinuationToken(startingBucket, null)
-            : NewestPublicContinuationToken.Deserialize(token.Value);
+            : NewestPublicContinuationToken.Deserialize(token.Token);
 
         var bucket = state.Bucket;
         var pk = $"pub|newest|{bucket}";

@@ -1,3 +1,7 @@
+// <copyright file="ITableServiceClientFactory.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using Azure.Data.Tables;
 
 namespace PromptHub.Web.Infrastructure.TableStorage.Client;

@@ -1,3 +1,7 @@
+// <copyright file="ITagCatalogStore.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using PromptHub.Web.Application.Models.Tags;
 
 namespace PromptHub.Web.Application.Abstractions.Persistence;

@@ -1,3 +1,7 @@
+// <copyright file="PublicPromptsNewestIndexTable.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
@@ -22,7 +26,7 @@ public sealed class PublicPromptsNewestIndexTable
     public PublicPromptsNewestIndexTable(ITableServiceClientFactory factory, IOptions<TableStorageOptions> options)
     {
         var serviceClient = factory.Create();
-        table = serviceClient.GetTableClient(options.Value.PublicPromptsNewestIndexTableName);
+        this.table = serviceClient.GetTableClient(options.Value.PublicPromptsNewestIndexTableName);
     }
 
     /// <summary>
@@ -30,7 +34,7 @@ public sealed class PublicPromptsNewestIndexTable
     /// </summary>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task CreateIfNotExistsAsync(CancellationToken ct) => table.CreateIfNotExistsAsync(ct);
+    public Task CreateIfNotExistsAsync(CancellationToken ct) => this.table.CreateIfNotExistsAsync(ct);
 
     /// <summary>
     /// Upserts an entity.
@@ -39,7 +43,7 @@ public sealed class PublicPromptsNewestIndexTable
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task UpsertAsync(PublicPromptsNewestIndexEntity entity, CancellationToken ct) =>
-        table.UpsertEntityAsync(entity, TableUpdateMode.Replace, ct);
+        this.table.UpsertEntityAsync(entity, TableUpdateMode.Replace, ct);
 
     /// <summary>
     /// Deletes an entity by partition key and row key.
@@ -49,7 +53,7 @@ public sealed class PublicPromptsNewestIndexTable
     /// <param name="ct">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task DeleteAsync(string partitionKey, string rowKey, CancellationToken ct) =>
-        table.DeleteEntityAsync(partitionKey, rowKey, ETag.All, ct);
+        this.table.DeleteEntityAsync(partitionKey, rowKey, ETag.All, ct);
 
     /// <summary>
     /// Queries a single partition.
@@ -66,7 +70,7 @@ public sealed class PublicPromptsNewestIndexTable
         CancellationToken ct)
     {
         var results = new List<PublicPromptsNewestIndexEntity>(pageSize);
-        var pages = table
+        var pages = this.table
             .QueryAsync<PublicPromptsNewestIndexEntity>(x => x.PartitionKey == partitionKey, maxPerPage: pageSize, cancellationToken: ct)
             .AsPages(continuationToken, pageSize);
 

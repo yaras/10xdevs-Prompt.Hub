@@ -1,3 +1,7 @@
+// <copyright file="TableStorageOptions.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 namespace PromptHub.Web.Infrastructure.TableStorage.Configuration;
 
 /// <summary>

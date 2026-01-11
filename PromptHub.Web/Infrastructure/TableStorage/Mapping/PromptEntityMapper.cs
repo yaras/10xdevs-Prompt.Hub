@@ -1,3 +1,7 @@
+// <copyright file="PromptEntityMapper.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using PromptHub.Web.Application.Models.Prompts;
 using PromptHub.Web.Infrastructure.TableStorage.Entities;
 

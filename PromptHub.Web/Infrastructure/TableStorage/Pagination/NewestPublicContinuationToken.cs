@@ -1,3 +1,7 @@
+// <copyright file="NewestPublicContinuationToken.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using System.Text.Json;
 
 namespace PromptHub.Web.Infrastructure.TableStorage.Pagination;

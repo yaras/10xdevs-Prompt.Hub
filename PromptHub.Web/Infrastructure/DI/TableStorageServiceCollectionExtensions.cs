@@ -1,4 +1,7 @@
-using Microsoft.Extensions.Options;
+// <copyright file="TableStorageServiceCollectionExtensions.cs" company="PromptHub">
+// Copyright (c) PromptHub. All rights reserved.
+// </copyright>
+
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Infrastructure.TableStorage.Client;
 using PromptHub.Web.Infrastructure.TableStorage.Configuration;
@@ -18,7 +21,7 @@ public static class TableStorageServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The application configuration.</param>
-    /// <returns>The service collection.</returns>
+    /// <returns>Collection of services.</returns>
     public static IServiceCollection AddTableStorage(this IServiceCollection services, IConfiguration configuration)
     {
         services
