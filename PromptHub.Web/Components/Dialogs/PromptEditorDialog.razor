@@ -36,9 +36,7 @@
                     <div>
                         <MudTextField @bind-Value="this.NewTag"
                                       Label="Add tag"
-                                      Placeholder="e.g. writing"
-                                      @onkeydown="this.OnNewTagKeyDown"
-                                      KeyDownPreventDefault="true"
+                                      Placeholder="e.g. code"
                                       Immediate="true" />
                     </div>
                     <MudButton Variant="Variant.Outlined" OnClick="this.AddTag" Disabled="@string.IsNullOrWhiteSpace(this.NewTag)">Add</MudButton>

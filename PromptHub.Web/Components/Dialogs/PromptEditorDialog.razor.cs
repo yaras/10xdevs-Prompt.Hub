@@ -130,16 +130,6 @@ public sealed partial class PromptEditorDialog : ComponentBase
 
     protected void RemoveTag(string tag) => this.Model.Tags.Remove(tag);
 
-    protected async Task OnNewTagKeyDown(KeyboardEventArgs args)
-    {
-        if (string.Equals(args.Key, "Enter", StringComparison.OrdinalIgnoreCase))
-        {
-            this.AddTag();
-        }
-
-        await Task.CompletedTask;
-    }
-
     protected async Task SaveAsync()
     {
         this.ErrorMessage = null;
