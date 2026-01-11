@@ -28,6 +28,8 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        builder.Services.AddMudServices();
+
         builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApp(options =>
             {
@@ -52,8 +54,6 @@ public class Program
             .AddMicrosoftIdentityUI();
 
         builder.Services.AddRazorPages();
-
-        builder.Services.AddMudServices();
 
         builder.Services.AddTableStorage(builder.Configuration);
 
