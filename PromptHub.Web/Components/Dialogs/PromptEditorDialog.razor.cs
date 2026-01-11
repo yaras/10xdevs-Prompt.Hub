@@ -225,6 +225,14 @@ public sealed partial class PromptEditorDialog : ComponentBase
             this.IsLoading = false;
         }
     }
+
+    private static IEnumerable<string> MaxCharacters(string ch, int max)
+    {
+        if (!string.IsNullOrEmpty(ch) && max < ch?.Length)
+        {
+            yield return $"Max {max} characters";
+        }
+    }
 }
 
 /// <summary>

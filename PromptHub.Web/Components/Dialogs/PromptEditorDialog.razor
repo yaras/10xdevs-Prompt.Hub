@@ -15,14 +15,18 @@
                 <MudTextField @bind-Value="this.Model.Title"
                               Label="Title"
                               Required="true"
+                              Counter="200"
                               RequiredError="Title is required"
+                              Validation="@(new Func<string, IEnumerable<string>>(v => MaxCharacters(v, 200)))"
                               Immediate="true" />
 
                 <MudTextField @bind-Value="this.Model.PromptText"
                               Label="Content"
                               Lines="8"
+                              Counter="3000"
                               Required="true"
                               RequiredError="Content is required"
+                              Validation="@(new Func<string, IEnumerable<string>>(v => MaxCharacters(v, 3000)))"
                               Immediate="true" />
 
                 <MudChipSet T="string" MultiSelection="true" Class="mt-2">
@@ -32,11 +36,13 @@
                     }
                 </MudChipSet>
 
-                <MudStack Row="true" Spacing="2" Class="mt-2" AlignItems="AlignItems.End">
+                <MudStack Row="true" Spacing="2" Class="mt-2" AlignItems="AlignItems.Start">
                     <div>
                         <MudTextField @bind-Value="this.NewTag"
                                       Label="Add tag"
                                       Placeholder="e.g. code"
+                                      Counter="10"
+                                      Validation="@(new Func<string, IEnumerable<string>>(v => MaxCharacters(v, 10)))"
                                       Immediate="true" />
                     </div>
                     <MudButton Variant="Variant.Outlined" OnClick="this.AddTag" Disabled="@string.IsNullOrWhiteSpace(this.NewTag)">Add</MudButton>
