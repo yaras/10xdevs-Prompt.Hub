@@ -3,15 +3,40 @@ using Azure.Data.Tables;
 
 namespace PromptHub.Web.Infrastructure.TableStorage.Entities;
 
+/// <summary>
+/// Represents a row in the <c>PromptVotes</c> Azure Table.
+/// </summary>
 public sealed class PromptVoteEntity : ITableEntity
 {
-	public string PartitionKey { get; set; } = string.Empty;
-	public string RowKey { get; set; } = string.Empty;
-	public DateTimeOffset? Timestamp { get; set; }
-	public ETag ETag { get; set; }
+    /// <inheritdoc />
+    public string PartitionKey { get; set; } = string.Empty;
 
-	public string PromptId { get; set; } = string.Empty;
-	public string VoterId { get; set; } = string.Empty;
-	public int VoteValue { get; set; }
-	public DateTimeOffset UpdatedAt { get; set; }
+    /// <inheritdoc />
+    public string RowKey { get; set; } = string.Empty;
+
+    /// <inheritdoc />
+    public DateTimeOffset? Timestamp { get; set; }
+
+    /// <inheritdoc />
+    public ETag ETag { get; set; }
+
+    /// <summary>
+    /// Gets or sets the prompt identifier.
+    /// </summary>
+    public string PromptId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the voter identifier.
+    /// </summary>
+    public string VoterId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the vote value (-1, 0, 1).
+    /// </summary>
+    public int VoteValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets the last update timestamp.
+    /// </summary>
+    public DateTimeOffset UpdatedAt { get; set; }
 }

@@ -2,7 +2,15 @@ using PromptHub.Web.Application.Models.Tags;
 
 namespace PromptHub.Web.Application.Abstractions.Persistence;
 
+/// <summary>
+/// Provides access to the predefined tag catalog.
+/// </summary>
 public interface ITagCatalogStore
 {
-	Task<IReadOnlyList<TagCatalogItemModel>> GetActiveTagsAsync(CancellationToken ct);
+    /// <summary>
+    /// Gets active tags.
+    /// </summary>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>The list of active tag items.</returns>
+    Task<IReadOnlyList<TagCatalogItemModel>> GetActiveTagsAsync(CancellationToken ct);
 }

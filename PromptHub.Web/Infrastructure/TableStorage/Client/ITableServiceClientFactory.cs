@@ -2,7 +2,14 @@ using Azure.Data.Tables;
 
 namespace PromptHub.Web.Infrastructure.TableStorage.Client;
 
+/// <summary>
+/// Creates <see cref="TableServiceClient" /> instances.
+/// </summary>
 public interface ITableServiceClientFactory
 {
-	TableServiceClient Create();
+    /// <summary>
+    /// Creates a configured <see cref="TableServiceClient" />.
+    /// </summary>
+    /// <returns>The table service client.</returns>
+    TableServiceClient Create();
 }

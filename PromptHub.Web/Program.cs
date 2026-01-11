@@ -52,7 +52,7 @@ public class Program
 
         builder.Services.AddRazorPages();
 
-		builder.Services.AddTableStorage(builder.Configuration);
+        builder.Services.AddTableStorage(builder.Configuration);
 
         var app = builder.Build();
 

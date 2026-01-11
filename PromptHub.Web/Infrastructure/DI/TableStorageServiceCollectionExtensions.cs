@@ -8,23 +8,32 @@ using PromptHub.Web.Infrastructure.TableStorage.Tables.PublicPromptsNewestIndex;
 
 namespace PromptHub.Web.Infrastructure.DI;
 
+/// <summary>
+/// Service registration for Table Storage infrastructure.
+/// </summary>
 public static class TableStorageServiceCollectionExtensions
 {
-	public static IServiceCollection AddTableStorage(this IServiceCollection services, IConfiguration configuration)
-	{
-		services
-			.AddOptions<TableStorageOptions>()
-			.Bind(configuration.GetSection(TableStorageOptions.SectionName))
-			.Validate(static o => !string.IsNullOrWhiteSpace(o.ConnectionString), "TableStorage connection string is required")
-			.ValidateOnStart();
+    /// <summary>
+    /// Adds Azure Table Storage infrastructure services.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddTableStorage(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddOptions<TableStorageOptions>()
+            .Bind(configuration.GetSection(TableStorageOptions.SectionName))
+            .Validate(static o => !string.IsNullOrWhiteSpace(o.ConnectionString), "TableStorage connection string is required")
+            .ValidateOnStart();
 
-		services.AddSingleton<ITableServiceClientFactory, TableServiceClientFactory>();
+        services.AddSingleton<ITableServiceClientFactory, TableServiceClientFactory>();
 
-		services.AddScoped<PromptsTable>();
-		services.AddScoped<PublicPromptsNewestIndexTable>();
+        services.AddScoped<PromptsTable>();
+        services.AddScoped<PublicPromptsNewestIndexTable>();
 
-		services.AddScoped<IPromptReadStore, TablePromptReadStore>();
+        services.AddScoped<IPromptReadStore, TablePromptReadStore>();
 
-		return services;
-	}
+        return services;
+    }
 }

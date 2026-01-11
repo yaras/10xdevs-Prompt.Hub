@@ -3,15 +3,40 @@ using Azure.Data.Tables;
 
 namespace PromptHub.Web.Infrastructure.TableStorage.Entities;
 
+/// <summary>
+/// Represents a row in the <c>TagCatalog</c> Azure Table.
+/// </summary>
 public sealed class TagCatalogEntity : ITableEntity
 {
-	public string PartitionKey { get; set; } = string.Empty;
-	public string RowKey { get; set; } = string.Empty;
-	public DateTimeOffset? Timestamp { get; set; }
-	public ETag ETag { get; set; }
+    /// <inheritdoc />
+    public string PartitionKey { get; set; } = string.Empty;
 
-	public string Tag { get; set; } = string.Empty;
-	public bool IsActive { get; set; } = true;
-	public string? DisplayName { get; set; }
-	public int? SortOrder { get; set; }
+    /// <inheritdoc />
+    public string RowKey { get; set; } = string.Empty;
+
+    /// <inheritdoc />
+    public DateTimeOffset? Timestamp { get; set; }
+
+    /// <inheritdoc />
+    public ETag ETag { get; set; }
+
+    /// <summary>
+    /// Gets or sets the normalized tag.
+    /// </summary>
+    public string Tag { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the tag is active.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the display name.
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the sort order.
+    /// </summary>
+    public int? SortOrder { get; set; }
 }
