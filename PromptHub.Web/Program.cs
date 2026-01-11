@@ -4,6 +4,7 @@
 
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
 using PromptHub.Web.Components;
 
 namespace PromptHub.Web;
@@ -44,7 +45,11 @@ public class Program
         });
 
         builder.Services.AddCascadingAuthenticationState();
-        builder.Services.AddControllers();
+        builder.Services
+            .AddControllersWithViews()
+            .AddMicrosoftIdentityUI();
+
+        builder.Services.AddRazorPages();
 
         var app = builder.Build();
 
@@ -67,6 +72,12 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.MapRazorPages();
+
+        app.MapControllerRoute(
+            name: "MicrosoftIdentity",
+            pattern: "MicrosoftIdentity/{controller=Account}/{action=SignIn}/{id?}");
 
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
