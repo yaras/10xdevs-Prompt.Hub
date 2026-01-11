@@ -117,6 +117,7 @@ public sealed class TablePromptWriteStore : IPromptWriteStore
             RowKey = rowKey,
             PromptId = model.PromptId,
             AuthorId = model.AuthorId,
+            AuthorEmail = model.AuthorEmail,
             Title = title,
             TitleNormalized = title.ToLowerInvariant(),
             Tags = TagString.ToDelimited(model.Tags),

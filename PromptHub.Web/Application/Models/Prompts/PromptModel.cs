@@ -11,6 +11,7 @@ namespace PromptHub.Web.Application.Models.Prompts;
 /// <param name="AuthorId">The stable author identifier (typically Entra <c>oid</c>).</param>
 /// <param name="Title">The prompt title.</param>
 /// <param name="PromptText">The prompt content.</param>
+/// <param name="AuthorEmail">The author's email address (when available).</param>
 /// <param name="Tags">The normalized, lower-case tags.</param>
 /// <param name="Visibility">The prompt visibility.</param>
 /// <param name="CreatedAt">The creation timestamp.</param>
@@ -23,6 +24,7 @@ public sealed record PromptModel(
     string AuthorId,
     string Title,
     string PromptText,
+    string? AuthorEmail,
     IReadOnlyList<string> Tags,
     PromptVisibility Visibility,
     DateTimeOffset CreatedAt,

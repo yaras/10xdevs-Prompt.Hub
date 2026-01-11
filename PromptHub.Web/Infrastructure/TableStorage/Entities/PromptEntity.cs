@@ -35,6 +35,11 @@ public sealed class PromptEntity : ITableEntity
     public string AuthorId { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the author email address.
+    /// </summary>
+    public string? AuthorEmail { get; set; }
+
+    /// <summary>
     /// Gets or sets the prompt title.
     /// </summary>
     public string Title { get; set; } = string.Empty;

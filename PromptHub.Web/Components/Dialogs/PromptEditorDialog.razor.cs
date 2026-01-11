@@ -32,6 +32,12 @@ public sealed partial class PromptEditorDialog : ComponentBase
     public string? AuthorId { get; set; }
 
     /// <summary>
+    /// Gets or sets the author email address (optional).
+    /// </summary>
+    [Parameter]
+    public string? AuthorEmail { get; set; }
+
+    /// <summary>
     /// Gets or sets the prompt id (required for edit mode).
     /// </summary>
     [Parameter]
@@ -164,6 +170,7 @@ public sealed partial class PromptEditorDialog : ComponentBase
                     AuthorId: authorId,
                     Title: this.Model.Title,
                     PromptText: this.Model.PromptText,
+                    AuthorEmail: this.AuthorEmail,
                     Tags: this.Model.Tags,
                     Visibility: this.Model.Visibility,
                     CreatedAt: now,

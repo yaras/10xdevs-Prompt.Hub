@@ -31,6 +31,7 @@ Prompt
   - CreatedAt
   - UpdatedAt
   - AuthorId
+  - AuthorEmail (optional; captured from identity claims when available)
   - IsDeleted (soft delete)
   - Likes (aggregate count)
   - Dislikes (aggregate count)

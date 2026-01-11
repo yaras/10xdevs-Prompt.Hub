@@ -44,6 +44,11 @@
                         </MudCardHeader>
 
                         <MudCardContent>
+                            @if (!string.IsNullOrWhiteSpace(prompt.AuthorEmail))
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">@prompt.AuthorEmail</MudText>
+                            }
+
                             <MudStack Row="true" Spacing="1" Class="mb-2" Style="flex-wrap:wrap;">
                                 @foreach (var tag in prompt.Tags)
                                 {

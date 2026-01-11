@@ -26,6 +26,7 @@ If MudBlazor is not yet configured, add:
 - Grid of prompt cards:
   - Use `MudGrid` + `MudItem` and inside each a `MudCard`.
   - Card shows title, tags (chips), visibility, last updated, likes/dislikes.
+- Card shows author email (when available).
   - Entire card clickable to open edit dialog.
 - Loading states:
   - While loading: `MudProgressCircular` centered.
@@ -63,6 +64,9 @@ Concurrency:
 ### AuthorId resolution
 - Use `AuthenticationStateProvider` and extract Entra `oid` claim.
 - Fail gracefully if missing (show message).
+
+### AuthorEmail resolution
+- Capture email from identity claims when available (e.g., `email`, `preferred_username`, `upn`) and persist it with the prompt so lists can display it without extra lookups.
 
 ### Loading prompts
 - In `MyPrompts.razor.cs`, in `OnInitializedAsync`:

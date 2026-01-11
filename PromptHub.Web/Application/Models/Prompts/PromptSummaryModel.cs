@@ -9,6 +9,7 @@ namespace PromptHub.Web.Application.Models.Prompts;
 /// </summary>
 /// <param name="PromptId">The prompt identifier (ULID stored as a string).</param>
 /// <param name="AuthorId">The stable author identifier (typically Entra <c>oid</c>).</param>
+/// <param name="AuthorEmail">The author's email address (when available).</param>
 /// <param name="Title">The prompt title.</param>
 /// <param name="Tags">The normalized, lower-case tags.</param>
 /// <param name="Visibility">The prompt visibility.</param>
@@ -19,6 +20,7 @@ namespace PromptHub.Web.Application.Models.Prompts;
 public sealed record PromptSummaryModel(
     string PromptId,
     string AuthorId,
+    string? AuthorEmail,
     string Title,
     IReadOnlyList<string> Tags,
     PromptVisibility Visibility,

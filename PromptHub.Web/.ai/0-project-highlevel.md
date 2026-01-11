@@ -20,6 +20,7 @@ A single entry for a prompt contains:
 - A title
 - The prompt text
 - Tags
+- Author email (optional; stored for display in lists)
 
 ## Additional information
 

@@ -72,6 +72,7 @@ public sealed class TablePromptReadStore(
                 results.Add(new PromptSummaryModel(
                     PromptId: entity.PromptId,
                     AuthorId: entity.AuthorId,
+                    AuthorEmail: entity.AuthorEmail,
                     Title: entity.Title,
                     Tags: TagString.ToTags(entity.Tags),
                     Visibility: PromptVisibilityMapper.ToModel(entity.Visibility),
@@ -113,6 +114,7 @@ public sealed class TablePromptReadStore(
             .Select(static e => new PromptSummaryModel(
                 PromptId: e.PromptId,
                 AuthorId: e.AuthorId,
+                AuthorEmail: e.AuthorEmail,
                 Title: e.Title,
                 Tags: TagString.ToTags(e.Tags),
                 Visibility: PromptVisibility.Public,

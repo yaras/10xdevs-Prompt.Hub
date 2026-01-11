@@ -108,10 +108,13 @@ public sealed partial class MyPrompts : ComponentBase
             return;
         }
 
+        var authorEmail = await this.TryGetAuthorEmailAsync();
+
         var parameters = new DialogParameters<PromptEditorDialog>
         {
             { d => d.Mode, PromptEditorMode.Create },
             { d => d.AuthorId, authorId },
+            { d => d.AuthorEmail, authorEmail },
             { d => d.Model, new PromptEditorModel { Visibility = PromptVisibility.Private } },
         };
 
@@ -211,6 +214,31 @@ public sealed partial class MyPrompts : ComponentBase
         {
             this.ErrorMessage = "Unable to identify the current user.";
             Console.Error.WriteLine(ex);
+            return null;
+        }
+    }
+
+    private async Task<string?> TryGetAuthorEmailAsync()
+    {
+        try
+        {
+            var authState = await this.AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            var email = user.FindFirstValue(ClaimTypes.Email)
+                ?? user.FindFirstValue("email")
+                ?? user.FindFirstValue("preferred_username")
+                ?? user.FindFirstValue("upn");
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+
+            return email.Trim();
+        }
+        catch
+        {
             return null;
         }
     }
