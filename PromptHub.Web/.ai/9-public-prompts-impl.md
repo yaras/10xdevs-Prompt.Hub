@@ -201,7 +201,7 @@ Deliverables:
 Add a new page (Blazor component), use `MyPrompts` as reference:
 
 - File: `PromptHub.Web/Components/Pages/PublicPrompts.razor` (+ `.razor.cs` if needed)
-- Route: `/public-prompts` (or `/prompts/public` — pick one and keep navigation consistent)
+- Route: `/public-prompts`
 
 UI elements (MudBlazor):
 
@@ -303,6 +303,6 @@ Optional UI tests (bUnit):
 
 ## Open points to confirm during implementation
 
-- Route name (final): `/public-prompts` vs `/prompts/public`.
-- Search min length: `2` vs `3`.
+- Route name (final): `/public-prompts`
+- Search min length: `3`.
 - Tag prompt-id cap per tag query (default `1000`).
