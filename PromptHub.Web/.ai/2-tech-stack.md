@@ -19,9 +19,9 @@ This document summarizes the intended MVP technology stack based on `.ai/1-prd.m
 
 ## Data storage
 - **Azure Table Storage** for persistence of:
-  - Prompts (with soft delete via `IsDeleted`)
-  - Votes (per-user vote state)
-  - Tag catalog (predefined list stored in Table Storage)
+- Prompts (with soft delete via `IsDeleted`)
+- Votes (per-user vote state)
+- Tag catalog (predefined list managed centrally for consistency)
 - Design expectations:
   - Avoid table scans; optimize partitions/keys for access patterns.
   - Support pagination via continuation tokens.

@@ -17,11 +17,7 @@ if (-not $subscrptionId -or -not $resourceGroupName -or -not $storageAccountName
 $requiredTables = @(
 	"Prompts",
 	"PromptVotes",
-	"TagIndex",
-	"PublicPromptsNewestIndex",
-	"PublicPromptsMostLikedIndex",
-	"TitleSearchIndex",
-	"TagCatalog"
+	"PublicPromptsNewestIndex"
 )
 
 Write-Host "Using subscription: $subscrptionId"

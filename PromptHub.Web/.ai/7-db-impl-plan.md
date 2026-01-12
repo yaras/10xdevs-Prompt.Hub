@@ -28,7 +28,6 @@ PromptHub.Web/
   Application/
     Models/
       Prompts/
-      Tags/
       Votes/
     Abstractions/
       Persistence/
@@ -41,8 +40,6 @@ PromptHub.Web/
       Votes/
         Commands/
         Queries/
-      Tags/
-        Queries/
     Mapping/
   Infrastructure/
     TableStorage/
@@ -51,11 +48,7 @@ PromptHub.Web/
       Tables/
         Prompts/
         PromptVotes/
-        TagIndex/
         PublicPromptsNewestIndex/
-        PublicPromptsMostLikedIndex/
-        TitleSearchIndex/
-        TagCatalog/
       Entities/
       Mapping/
       Pagination/
@@ -78,29 +71,21 @@ PromptHub.Web/
 
 ## 2) Table naming / configuration
 
-Create options bound from configuration:
+Bind a single `TableStorageOptions` section and expose the tables that exist today:
 
 - `TableStorageOptions`
   - `ConnectionString`
   - `PromptsTableName` (default: `Prompts`)
   - `PromptVotesTableName` (default: `PromptVotes`)
-  - `TagIndexTableName` (default: `TagIndex`)
   - `PublicPromptsNewestIndexTableName` (default: `PublicPromptsNewestIndex`)
-  - `PublicPromptsMostLikedIndexTableName` (default: `PublicPromptsMostLikedIndex`)
-  - `TitleSearchIndexTableName` (default: `TitleSearchIndex`)
-  - `TagCatalogTableName` (default: `TagCatalog`)
 
-Plan: keep names configurable to support dev/prod separation and allow table suffixing.
+Plan: keep the names configurable to support dev/prod separation and allow table suffixing.
 
 ---
 
 ## 3) Storage entities (1:1 with tables)
 
-Implement one storage entity per table. These are “database entities” and should live under:
-
-- `Infrastructure/TableStorage/Entities/`
-
-Suggested naming convention: `*Entity` for Table Storage rows.
+Implement one storage entity per table. These are “database entities” and should live under `Infrastructure/TableStorage/Entities/`.
 
 ### `Prompts` table
 - `PromptEntity`
@@ -114,54 +99,28 @@ Suggested naming convention: `*Entity` for Table Storage rows.
   - `RowKey = "u|{VoterId}"`
   - `PromptId`, `VoterId`, `VoteValue`, `UpdatedAt`, `Timestamp`, `ETag`.
 
-### `TagIndex` table
-- `TagIndexEntity`
-  - `PartitionKey = "t|{Tag}"`
-  - `RowKey = "{PromptId}"`
-  - minimal denormalized fields: `Tag`, `PromptId`, `AuthorId`, `Visibility`, `CreatedAt`, `Likes`, `Dislikes`, `IsDeleted`.
-
 ### `PublicPromptsNewestIndex` table
 - `PublicPromptsNewestIndexEntity`
   - `PartitionKey = "pub|newest|{yyyyMM}"`
   - `RowKey = "{CreatedAtTicksDesc}|{PromptId}"`
-  - denormalized fields for list display.
-
-### `PublicPromptsMostLikedIndex` table
-- `PublicPromptsMostLikedIndexEntity`
-  - `PartitionKey = "pub|liked|{ScoreBucket}"`
-  - `RowKey = "{ScoreDesc}|{CreatedAtTicksDesc}|{PromptId}"`
-  - `Score` plus denormalized fields.
-
-### `TitleSearchIndex` table (optional but recommended)
-- `TitleSearchIndexEntity`
-  - `PartitionKey = "q|{Token}"`
-  - `RowKey = "{PromptId}"`
-  - `Token`, `PromptId`, `Visibility`, `AuthorId`, `IsDeleted`, `CreatedAt`.
-
-### `TagCatalog` table
-- `TagCatalogEntity`
-  - `PartitionKey = "tagcatalog"`
-  - `RowKey = "{Tag}"`
-  - `Tag`, `IsActive`, optional `DisplayName`, `SortOrder`.
+  - Denormalized fields for list display (title, tags, author metadata, likes/dislikes, timestamps, updated at, etc.).
 
 ---
 
 ## 4) Application models (UI/feature-facing)
 
-Models should be storage-agnostic and live under:
-
-- `Application/Models/`
+Models should be storage-agnostic and live under `Application/Models/`.
 
 Suggested models (minimal MVP):
 
 - `Prompt`
-  - `PromptId`, `AuthorId`, `Title`, `PromptText`, `Tags` (as `IReadOnlyList<string>`), `Visibility`, `CreatedAt`, `UpdatedAt`, `Likes`, `Dislikes`.
+  - `PromptId`, `AuthorId`, `Title`, `PromptText`, `Tags` (as `IReadOnlyList<string>`), `Visibility`, `CreatedAt`, `UpdatedAt`, `Likes`, `Dislikes`, `ETag`.
 - `PromptSummary`
-  - used for lists (public newest/most liked, tag listings).
+  - Used by public listing; contains subset of fields plus aggregated counts and `AuthorEmail` for display.
 - `VoteState`
-  - `PromptId`, `VoterId`, `VoteValue`, `UpdatedAt`.
+  - `PromptId`, `VoterId`, `VoteValue`, `UpdatedAt`, `ETag`.
 - `TagCatalogItem`
-  - `Tag`, `DisplayName?`, `IsActive`, `SortOrder?`.
+  - `Tag`, `DisplayName?`, `IsActive`, `SortOrder?` (data-driven allowed list sourced from configuration or a lightweight seed process).
 
 ---
 
@@ -171,44 +130,38 @@ Because storage entities are 1:1 with tables while application models are domain
 
 - Place mapping helpers in:
   - `Application/Mapping/` (app-side normalization helpers)
-  - `Infrastructure/TableStorage/Mapping/` (entity ↔ model and entity ↔ index mappings)
+  - `Infrastructure/TableStorage/Mapping/` (entity ↔ model and index mappings)
 
 Key mapping responsibilities:
 - Normalize title:
   - `TitleNormalized = Title.Trim().ToLowerInvariant()`
 - Normalize tags:
-  - per decisions: lower-case, validate against TagCatalog, max 10.
+  - per decisions: lower-case, validate against the approved tag catalog, max 10.
   - store display string as `"tag-a;tag-b"`
-  - app model should expose tags as list; mapper converts list ↔ delimited string.
-- Compute keys and index rows consistently:
-  - helpers for partition/row key formats (centralized).
+  - app model exposes tags as list; mapper converts list ↔ delimited string.
+- Compute keys consistently for the newest index and prompt partitions.
 
 ---
 
 ## 6) Persistence abstractions (Application layer)
 
-Create interfaces in `Application/Abstractions/Persistence/`.
-
-Keep them feature-focused (CQRS-friendly), but still allow reuse.
-
-Suggested interfaces:
+Create interfaces in `Application/Abstractions/Persistence/` tailored to the flows built so far.
 
 - `IPromptWriteStore`
   - `CreateAsync(Prompt prompt, CancellationToken ct)`
-  - `UpdateAsync(Prompt prompt, string expectedETag, CancellationToken ct)` (or include ETag on model)
+  - `UpdateAsync(Prompt prompt, string expectedETag, CancellationToken ct)`
   - `SoftDeleteAsync(string authorId, string promptId, CancellationToken ct)`
-  - (internally responsible for synchronously updating index tables)
+  - (internally responsible for synchronously updating `PublicPromptsNewestIndex` when visibility/timestamps change)
 
 - `IPromptReadStore`
   - `GetByIdForAuthorAsync(string authorId, string promptId, CancellationToken ct)`
   - `GetPublicByIdAsync(string promptId, CancellationToken ct)` (enforces visibility)
   - `ListMyPromptsAsync(string authorId, ContinuationToken? token, int pageSize, CancellationToken ct)`
   - `ListPublicNewestAsync(YearMonthBucket startBucket, ContinuationToken? token, int pageSize, CancellationToken ct)`
-  - `ListPublicMostLikedAsync(ScoreBucket startBucket, ContinuationToken? token, int pageSize, CancellationToken ct)`
 
 - `IVoteStore`
-  - `UpsertVoteAsync(promptId, voterId, voteValue, CancellationToken ct)`
-  - `GetVoteAsync(promptId, voterId, CancellationToken ct)`
+  - `GetVoteAsync(string promptId, string voterId, CancellationToken ct)`
+  - `UpsertVoteAsync(string promptId, string voterId, VoteValue voteValue, CancellationToken ct)`
 
 - `ITagCatalogStore`
   - `GetActiveTagsAsync(CancellationToken ct)`
@@ -237,11 +190,7 @@ Each wrapper owns:
 Example wrappers:
 - `PromptsTable`
 - `PromptVotesTable`
-- `TagIndexTable`
 - `PublicPromptsNewestIndexTable`
-- `PublicPromptsMostLikedIndexTable`
-- `TitleSearchIndexTable`
-- `TagCatalogTable`
 
 The write store(s) orchestrate multi-table updates; wrappers remain simple.
 
@@ -251,97 +200,66 @@ The write store(s) orchestrate multi-table updates; wrappers remain simple.
 
 ### Prompts — commands
 - `CreatePromptCommand` → `CreatePromptHandler`
-  - Validates title length, prompt text length, tags <= 10
-  - Validates tags exist in TagCatalog
-  - Creates `PromptId` (ULID)
-  - Writes `Prompts` row
-  - Writes `TagIndex` rows
-  - If public: writes `PublicPromptsNewestIndex` (+ `PublicPromptsMostLikedIndex` with computed initial score)
-  - Optionally writes `TitleSearchIndex`
+  - Validates title length, prompt text length, tags <= 10.
+  - Validates tags exist in the approved catalog.
+  - Creates `PromptId` (ULID).
+  - Writes `Prompts` row.
+  - If public: upserts `PublicPromptsNewestIndex` row with denormalized metadata.
 
 - `UpdatePromptCommand` → `UpdatePromptHandler`
-  - Uses optimistic concurrency with `ETag` (provided by read)
-  - Updates `Prompts`
-  - Computes tag diffs → add/remove `TagIndex` rows
-  - Handles visibility changes:
-    - public→private: delete public index rows
-    - private→public: insert public index rows
-  - Updates title search index tokens if enabled
+  - Uses optimistic concurrency with `ETag`.
+  - Updates `Prompts`.
+  - Maintains `PublicPromptsNewestIndex`:
+    - If visibility remains public: update the index row.
+    - If visibility changes to private or `IsDeleted=true`: delete the index row.
 
 - `DeletePromptCommand` → `DeletePromptHandler`
-  - Soft delete in `Prompts` (`IsDeleted=true`)
-  - Remove from public indexes
-  - Remove all `TagIndex` rows for prompt (preferred)
-  - Remove `TitleSearchIndex` rows for prompt (if enabled)
+  - Soft delete in `Prompts` (`IsDeleted=true`).
+  - Remove the corresponding row in `PublicPromptsNewestIndex` if it exists.
 
 ### Votes — commands
 - `UpsertVoteCommand` → `UpsertVoteHandler`
-  - Upsert row in `PromptVotes`
-  - Update aggregate counts in `Prompts` using ETag retry
-  - Update public indexes synchronously (MVP):
-    - update denormalized Likes/Dislikes in newest index
-    - recompute score and move most-liked row if key changes (delete old, insert new)
+  - Upsert row in `PromptVotes`.
+  - Update aggregate counts in `Prompts` using ETag retry.
+  - Public newest index may lag; the write path can optionally refresh the index (MVP keeps eventually consistent values).
 
 ### Read queries (repositories/handlers)
-- `GetPromptQuery` (author/private aware)
-- `ListMyPromptsQuery`
-- `ListPublicNewestQuery` (bucket iteration + continuation token)
-- `ListPublicMostLikedQuery` (score buckets)
-- `SearchPublicByTitleQuery` (MVP strategy below)
-- `FilterPublicByTagsQuery` (AND semantics)
+- `GetPromptQuery` (author/private aware).
+- `ListMyPromptsQuery`.
+- `ListPublicNewestQuery` (bucket iteration + continuation token).
+- `SearchPublicByTitleQuery` (constraint-based search on the newest index data).
+- `FilterPublicByTagsQuery` (AND semantics applied on the `Tags` column of the newest index rows).
 
 ---
 
-## 9) Query patterns: pagination + AND tags + title search (MVP)
+## 9) Query patterns: pagination + filtering (MVP)
 
 ### Pagination primitives
 Create in `Infrastructure/TableStorage/Pagination/`:
 - `ContinuationPage<T>`: `Items`, `ContinuationToken?`
-- `TableContinuationToken` wrapper that can store:
-  - raw Table SDK continuation values (NextPartitionKey/NextRowKey) OR
-  - a serialized token string
+- `TableContinuationToken` wrapper that stores:
+  - raw Table SDK continuation values (NextPartitionKey/NextRowKey)
+  - serialized state describing the current bucket
 
-Also support **bucket iteration** for:
-- public newest: month buckets (`yyyyMM`)
-- most liked: score buckets (`0000`..`9999` or chosen max)
-
+Also support **bucket iteration** for the newest index (`yyyyMM`).
 Implementation detail:
-- token should carry both:
-  - current bucket id
-  - SDK continuation for that bucket
-  - so next page can continue within bucket, then move to next bucket when empty.
+- The token carries the current month partition and Table SDK continuation so the UI can keep fetching until the current bucket is exhausted, then move to earlier months.
 
-### AND tag filtering
-From the plan: `TagIndex` supports AND by intersecting prompt IDs across tag partitions.
+### Tag filtering
+Apply strict AND semantics directly on the `Tags` column of rows returned by `PublicPromptsNewestIndex`:
+1. Fetch a page from the newest index.
+2. Retain only prompts whose `Tags` string contains all selected normalized tags.
+3. Repeat paging until enough matches or the listing ends.
 
-MVP approach:
-1. Query each selected tag partition (`t|{tag}`) for `PromptId` rows.
-2. Intersect `PromptId`s in-memory.
-3. Hydrate prompt summaries:
-   - Option A (fastest to implement): read from `Prompts` by author is not possible for public; so use a public index (newest) to hydrate, or denormalize enough fields in `TagIndex` for list rendering.
-   - Given the schema already denormalizes list-relevant fields in `TagIndex`, prefer using `TagIndex` rows as the summary source.
-
-Pagination caveat:
-- true continuation-token pagination over intersections is non-trivial.
-- MVP acceptable behavior:
-  - limit to small tag result sets by page size cap per tag
-  - document that deep pagination for multi-tag AND is best-effort.
+Document that deep filtering may require loading additional pages and is intentionally low-complexity for MVP.
 
 ### Title search (contains-ish)
-Per unresolved issues: pure contains requires scan.
+Constrained title search runs in-memory on the prompt titles returned from the newest index page:
+- Normalize the query (trim + lower-case).
+- Filter the fetched rows by checking if `TitleNormalized` contains the search token.
+- Require a minimum query length (e.g., `>= 3`) to keep the search fast.
 
-MVP recommend (already in `4-db-plan.md`): `TitleSearchIndex` tokenization.
-- Normalize title to `TitleNormalized`.
-- Tokenize to words and optional prefixes (3–5 chars).
-- Store `q|{token}` → `PromptId` rows.
-
-Query:
-- Tokenize user input similarly.
-- Fetch candidate PromptIds from partitions (intersection optional for multi-token search)
-- Hydrate summaries.
-
-If you want a literal `contains` fallback for early MVP, restrict it:
-- only search within last N public prompts (e.g., newest buckets for last 1–2 months), then filter in memory.
+If more results are desired, the UI will continue loading pages and applying the filter client-side.
 
 ---
 
@@ -355,14 +273,13 @@ Location: `Infrastructure/TableStorage/Concurrency/` and `Infrastructure/TableSt
 
 ### Retry strategy
 - Apply exponential backoff on transient failures and 429.
-- For aggregate updates (likes/dislikes), implement bounded retry loop:
+- For aggregate updates (likes/dislikes), implement a bounded retry loop:
   1. read prompt entity
   2. compute new counts
   3. try update with ETag
   4. retry on conflict
 
-Keep retry logic centralized:
-- `TableRetryPolicy.ExecuteAsync(...)`
+Keep retry logic centralized via `TableRetryPolicy.ExecuteAsync(...)`.
 
 ---
 
@@ -372,8 +289,8 @@ Add DI registration extension in `Infrastructure/DI/`:
 - `AddTableStorage(this IServiceCollection, IConfiguration)`
   - binds `TableStorageOptions`
   - registers `ITableServiceClientFactory` singleton
-  - registers per-table wrappers as scoped
-  - registers stores (`IPromptReadStore`, `IPromptWriteStore`, etc.) as scoped
+  - registers per-table wrappers (`PromptsTable`, `PromptVotesTable`, `PublicPromptsNewestIndexTable`) as scoped
+  - registers stores (`IPromptReadStore`, `IPromptWriteStore`, `IVoteStore`, `ITagCatalogStore`) as scoped
 
 ---
 
@@ -390,22 +307,21 @@ Strategy:
 Recommended test focus:
 - Tag normalization + validation
 - Visibility rules enforced by reads
-- Soft delete removes from user-facing queries
+- Soft delete removes prompts from both the author list and the public newest index
 - Vote transitions update aggregates correctly (like→none, dislike→like, etc.)
-- Index update logic called (can be asserted via fake store state)
+- Index updates invoked when prompts change visibility
 
 ---
 
 ## 13) Implementation sequence (small, safe steps)
 
 1. Add `TableStorageOptions` + DI wiring skeleton.
-2. Add Table client factory + per-table wrappers (no features yet).
+2. Add Table client factory + per-table wrappers (Prompts, PromptVotes, PublicPromptsNewestIndex).
 3. Implement storage entities + mapping utilities (keys, normalization).
 4. Implement read stores first (My Prompts, Public Newest).
-5. Implement `CreatePrompt` write workflow (including TagIndex + public indexes).
-6. Implement vote workflow with optimistic concurrency + most-liked index move.
-7. Add optional TitleSearchIndex.
-8. Add unit tests and in-memory fakes for handlers.
+5. Implement `CreatePrompt` write workflow (including newest index maintenance).
+6. Implement vote workflow with optimistic concurrency + prompt aggregate updates.
+7. Add unit tests and in-memory fakes for handlers.
 
 ---
 
@@ -415,11 +331,6 @@ Centralize these in Infrastructure (single source of truth):
 
 - `Prompts.PartitionKey = "u|{AuthorId}"`
 - `PromptVotes.PartitionKey = "p|{PromptId}"` / `RowKey = "u|{VoterId}"`
-- `TagIndex.PartitionKey = "t|{Tag}"`
 - `PublicPromptsNewestIndex.PartitionKey = "pub|newest|{yyyyMM}"`
 - `PublicPromptsNewestIndex.RowKey = "{CreatedAtTicksDesc}|{PromptId}"`
-- `PublicPromptsMostLikedIndex.PartitionKey = "pub|liked|{ScoreBucket}"`
-- `PublicPromptsMostLikedIndex.RowKey = "{ScoreDesc}|{CreatedAtTicksDesc}|{PromptId}"`
-- `TitleSearchIndex.PartitionKey = "q|{Token}"`
-- `TagCatalog.PartitionKey = "tagcatalog"`
 

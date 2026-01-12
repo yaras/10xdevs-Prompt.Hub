@@ -43,7 +43,7 @@ Vote (per-user state for a prompt)
 - UpdatedAt
 
 Tag catalog
-- Predefined list stored in Azure Table Storage (seeded operationally).
+- Predefined list managed centrally (seeded operationally) and not user-generated.
 - Tags are lower-case.
 
 ### 1.6 Information architecture (MVP)
