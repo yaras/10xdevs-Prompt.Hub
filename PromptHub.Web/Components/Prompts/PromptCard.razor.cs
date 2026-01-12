@@ -39,6 +39,9 @@ namespace PromptHub.Web.Components.Prompts
         [Parameter]
         public EventCallback<string> OnEdit { get; set; }
 
+        [Parameter]
+        public EventCallback<string> OnView { get; set; }
+
         private Task EditClicked()
         {
             if (!this.OnEdit.HasDelegate)
@@ -47,6 +50,16 @@ namespace PromptHub.Web.Components.Prompts
             }
 
             return this.OnEdit.InvokeAsync(this.Prompt.PromptId);
+        }
+
+        private Task ViewClicked()
+        {
+            if (!this.OnView.HasDelegate)
+            {
+                return Task.CompletedTask;
+            }
+
+            return this.OnView.InvokeAsync(this.Prompt.PromptId);
         }
     }
 }

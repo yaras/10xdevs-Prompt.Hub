@@ -34,9 +34,49 @@ public sealed class TablePromptReadStore(
     /// <inheritdoc />
     public async Task<PromptModel?> GetPublicByIdAsync(string promptId, CancellationToken ct)
     {
-        // MVP: public-by-id is fetched by scanning indexes would be expensive.
-        // Implemented later when a direct public lookup strategy is decided.
-        await Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(promptId))
+        {
+            return null;
+        }
+
+        // MVP implementation:
+        // - We do NOT have a dedicated PromptId -> (PartitionKey, RowKey) lookup for public prompts.
+        // - The public-newest index is partitioned by month, so we search a bounded number
+        //   of recent buckets for the prompt id.
+        // - Once we have the author id from the index row, we can fetch the canonical prompt row
+        //   directly (u|authorId + promptId) without scanning the Prompts table.
+        const int maxBucketsToScan = 24;
+        const int indexPageSize = 500;
+
+        var nowUtc = DateTimeOffset.UtcNow;
+
+        for (var i = 0; i < maxBucketsToScan; i++)
+        {
+            var bucketDate = nowUtc.AddMonths(-i);
+            var pk = KeyFormat.PublicNewestPartitionKey(bucketDate);
+
+            string? continuation = null;
+            do
+            {
+                var (items, next) = await newestIndexTable.QueryPartitionAsync(pk, indexPageSize, continuation, ct);
+                var match = items.FirstOrDefault(x => string.Equals(x.PromptId, promptId, StringComparison.Ordinal));
+                if (match is not null)
+                {
+                    var entity = await promptsTable.GetAsync(KeyFormat.PromptsPartitionKey(match.AuthorId), promptId, ct);
+                    if (entity is null || entity.IsDeleted)
+                    {
+                        return null;
+                    }
+
+                    var model = PromptEntityMapper.ToModel(entity);
+                    return model.Visibility == PromptVisibility.Public ? model : null;
+                }
+
+                continuation = next;
+            }
+            while (!string.IsNullOrWhiteSpace(continuation));
+        }
+
         return null;
     }
 

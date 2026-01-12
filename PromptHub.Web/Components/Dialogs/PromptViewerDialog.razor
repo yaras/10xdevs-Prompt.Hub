@@ -1,0 +1,58 @@
+@using MudBlazor
+@using PromptHub.Web.Application.Models.Prompts
+
+<MudDialog>
+    <DialogContent>
+        @if (this.IsLoading)
+        {
+            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="my-6">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            </MudStack>
+        }
+        else if (!string.IsNullOrWhiteSpace(this.ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" Class="mt-4">@this.ErrorMessage</MudAlert>
+        }
+        else if (this.Prompt is null)
+        {
+            <MudText Color="Color.Secondary">Prompt not found.</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5">@this.Prompt.Title</MudText>
+
+            @if (!string.IsNullOrWhiteSpace(this.Prompt.AuthorEmail))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">@this.Prompt.AuthorEmail</MudText>
+            }
+
+            <MudStack Row="true" Spacing="1" Class="mb-2" Style="flex-wrap:wrap;">
+                @foreach (var tag in this.Prompt.Tags)
+                {
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@tag</MudChip>
+                }
+            </MudStack>
+
+            <MudStack Row="true" Spacing="2" Class="mb-2">
+                <MudChip T="string" Size="Size.Small" Color="@(this.Prompt.Visibility == PromptVisibility.Public ? Color.Success : Color.Default)">
+                    @this.Prompt.Visibility
+                </MudChip>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    Created @this.Prompt.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")
+                    · Updated @this.Prompt.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd")
+                </MudText>
+            </MudStack>
+
+            <MudTextField Value="this.Prompt.PromptText"
+                          ReadOnly="true"
+                          Lines="10"
+                          Label="Content"
+                          Variant="Variant.Outlined"
+                          Class="mt-2" />
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="this.Close">Close</MudButton>
+    </DialogActions>
+</MudDialog>
