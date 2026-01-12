@@ -4,10 +4,14 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using PromptHub.Web.Application.Abstractions.Persistence;
+using PromptHub.Web.Application.Features.Votes;
 using PromptHub.Web.Application.Models.Prompts;
+using PromptHub.Web.Application.Models.Votes;
 using PromptHub.Web.Components.Dialogs;
+using System.Security.Claims;
 
 namespace PromptHub.Web.Components.Pages;
 
@@ -26,6 +30,18 @@ public sealed partial class PublicPrompts : ComponentBase
     [Inject]
     private IDialogService DialogService { get; set; } = default!;
 
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = default!;
+
+    [Inject]
+    private IPromptVotingFeature PromptVotingFeature { get; set; } = default!;
+
+    [Inject]
+    private IVoteStore VoteStore { get; set; } = default!;
+
     protected List<PromptSummaryModel> Prompts { get; } = new();
 
     protected bool IsLoading { get; private set; }
@@ -36,11 +52,60 @@ public sealed partial class PublicPrompts : ComponentBase
 
     protected string? SearchText { get; set; }
 
+    protected string? CurrentUserId { get; private set; }
+
     protected bool CanLoadMore => this.continuationToken is not null;
 
     protected override async Task OnInitializedAsync()
     {
+        this.CurrentUserId = await this.TryGetUserIdAsync();
         await this.ReloadAsync();
+    }
+
+    protected async Task HandleVoteAsync(VoteRequest request)
+    {
+        var voterId = this.CurrentUserId ?? await this.TryGetUserIdAsync();
+        this.CurrentUserId ??= voterId;
+        if (string.IsNullOrWhiteSpace(voterId))
+        {
+            this.Snackbar.Add("Unable to identify the current user.", Severity.Error);
+            return;
+        }
+
+        var index = this.Prompts.FindIndex(p => string.Equals(p.PromptId, request.PromptId, StringComparison.Ordinal));
+        if (index < 0)
+        {
+            return;
+        }
+
+        var current = this.Prompts[index];
+        var previous = current;
+
+        var optimisticNewVote = current.UserVote == request.Requested ? VoteValue.None : request.Requested;
+        var (dLikes, dDislikes) = ComputeDelta(current.UserVote, optimisticNewVote);
+
+        this.Prompts[index] = current with
+        {
+            UserVote = optimisticNewVote,
+            Likes = Math.Max(0, current.Likes + dLikes),
+            Dislikes = Math.Max(0, current.Dislikes + dDislikes),
+        };
+
+        try
+        {
+            var result = await this.PromptVotingFeature.VoteAsync(request, voterId, CancellationToken.None);
+            this.Prompts[index] = this.Prompts[index] with
+            {
+                UserVote = result.NewVote,
+                Likes = result.Likes,
+                Dislikes = result.Dislikes,
+            };
+        }
+        catch
+        {
+            this.Prompts[index] = previous;
+            this.Snackbar.Add("Failed to submit vote.", Severity.Error);
+        }
     }
 
     protected async Task OpenViewDialogAsync(string promptId)
@@ -67,7 +132,9 @@ public sealed partial class PublicPrompts : ComponentBase
             this.ErrorMessage = null;
 
             var page = await this.PromptReadStore.ListPublicNewestAsync(this.continuationToken, PageSize, CancellationToken.None);
-            this.Prompts.AddRange(this.ApplyConstrainedSearch(page.Items));
+            var filtered = this.ApplyConstrainedSearch(page.Items);
+            var withVotes = await this.PopulateVotesAsync(filtered, CancellationToken.None);
+            this.Prompts.AddRange(withVotes);
             this.continuationToken = page.ContinuationToken;
         }
         catch (Exception ex)
@@ -102,7 +169,9 @@ public sealed partial class PublicPrompts : ComponentBase
             var page = await this.PromptReadStore.ListPublicNewestAsync(token: null, PageSize, CancellationToken.None);
 
             this.Prompts.Clear();
-            this.Prompts.AddRange(this.ApplyConstrainedSearch(page.Items));
+            var filtered = this.ApplyConstrainedSearch(page.Items);
+            var withVotes = await this.PopulateVotesAsync(filtered, CancellationToken.None);
+            this.Prompts.AddRange(withVotes);
             this.continuationToken = page.ContinuationToken;
             this.initialLoadCompleted = true;
         }
@@ -135,6 +204,74 @@ public sealed partial class PublicPrompts : ComponentBase
         return items
             .Where(p => (p.Title ?? string.Empty).Contains(q, StringComparison.OrdinalIgnoreCase))
             .ToArray();
+    }
+
+    private static (int DeltaLikes, int DeltaDislikes) ComputeDelta(VoteValue current, VoteValue next)
+    {
+        var deltaLikes = 0;
+        var deltaDislikes = 0;
+
+        if (current == VoteValue.Like)
+        {
+            deltaLikes -= 1;
+        }
+        else if (current == VoteValue.Dislike)
+        {
+            deltaDislikes -= 1;
+        }
+
+        if (next == VoteValue.Like)
+        {
+            deltaLikes += 1;
+        }
+        else if (next == VoteValue.Dislike)
+        {
+            deltaDislikes += 1;
+        }
+
+        return (deltaLikes, deltaDislikes);
+    }
+
+    private async Task<IReadOnlyList<PromptSummaryModel>> PopulateVotesAsync(IReadOnlyList<PromptSummaryModel> items, CancellationToken ct)
+    {
+        if (items.Count == 0)
+        {
+            return items;
+        }
+
+        var voterId = this.CurrentUserId ?? await this.TryGetUserIdAsync();
+        this.CurrentUserId ??= voterId;
+        if (string.IsNullOrWhiteSpace(voterId))
+        {
+            return items;
+        }
+
+        var result = new PromptSummaryModel[items.Count];
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            var item = items[i];
+            var vote = await this.VoteStore.GetVoteAsync(item.PromptId, voterId, ct);
+            result[i] = item with { UserVote = vote?.VoteValue ?? VoteValue.None };
+        }
+
+        return result;
+    }
+
+    private async Task<string?> TryGetUserIdAsync()
+    {
+        try
+        {
+            var authState = await this.AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            var id = user.FindFirstValue("oid") ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
+            return string.IsNullOrWhiteSpace(id) ? null : id;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
 }

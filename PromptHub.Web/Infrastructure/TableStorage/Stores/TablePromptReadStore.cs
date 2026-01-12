@@ -119,7 +119,8 @@ public sealed class TablePromptReadStore(
                     CreatedAt: entity.CreatedAt,
                     UpdatedAt: entity.UpdatedAt,
                     Likes: entity.Likes,
-                    Dislikes: entity.Dislikes));
+                    Dislikes: entity.Dislikes,
+                    UserVote: Application.Models.Votes.VoteValue.None));
             }
 
             ContinuationToken? next = string.IsNullOrWhiteSpace(page.ContinuationToken)
@@ -161,7 +162,8 @@ public sealed class TablePromptReadStore(
                 CreatedAt: e.CreatedAt,
                 UpdatedAt: e.UpdatedAt,
                 Likes: e.Likes,
-                Dislikes: e.Dislikes))
+                Dislikes: e.Dislikes,
+                UserVote: Application.Models.Votes.VoteValue.None))
             .ToArray();
 
         ContinuationToken? next = continuation is null

@@ -1,5 +1,6 @@
 @using MudBlazor
 @using PromptHub.Web.Application.Models.Prompts
+@using PromptHub.Web.Application.Models.Votes
 
 <MudCard>
     <MudCardHeader>
@@ -40,12 +41,32 @@
 
     <MudCardActions>
         <MudStack Row="true" Spacing="2">
-            <MudButton StartIcon="@Icons.Material.Filled.ThumbUp" Size="Size.Small" Color="Color.Success" Typo="Typo.caption">
-                @this.Prompt.Likes
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.ThumbDown" Size="Size.Small" Color="Color.Error" Typo="Typo.caption">
-                @this.Prompt.Dislikes
-            </MudButton>
+            @if (this.ShowVoting)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.ThumbUp"
+                           Size="Size.Small"
+                           Color="Color.Success"
+                           Variant="@(this.Prompt.UserVote == VoteValue.Like ? Variant.Filled : Variant.Outlined)"
+                           OnClick="this.LikeClicked">
+                    @this.Prompt.Likes
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.ThumbDown"
+                           Size="Size.Small"
+                           Color="Color.Error"
+                           Variant="@(this.Prompt.UserVote == VoteValue.Dislike ? Variant.Filled : Variant.Outlined)"
+                           OnClick="this.DislikeClicked">
+                    @this.Prompt.Dislikes
+                </MudButton>
+            }
+            else
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.ThumbUp" Size="Size.Small" Color="Color.Success" Disabled="true">
+                    @this.Prompt.Likes
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.ThumbDown" Size="Size.Small" Color="Color.Error" Disabled="true">
+                    @this.Prompt.Dislikes
+                </MudButton>
+            }
         </MudStack>
     </MudCardActions>
 </MudCard>

@@ -4,6 +4,8 @@
 
 namespace PromptHub.Web.Application.Models.Prompts;
 
+using PromptHub.Web.Application.Models.Votes;
+
 /// <summary>
 /// Represents a prompt summary used for list rendering.
 /// </summary>
@@ -27,4 +29,5 @@ public sealed record PromptSummaryModel(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     int Likes,
-    int Dislikes);
+    int Dislikes,
+    VoteValue UserVote = VoteValue.None);
