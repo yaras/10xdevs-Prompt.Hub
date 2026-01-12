@@ -40,16 +40,13 @@ public sealed partial class PromptViewerDialog : ComponentBase
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(this.AuthorId))
-        {
-            this.ErrorMessage = "Missing author context.";
-            return;
-        }
-
         try
         {
             this.IsLoading = true;
-            this.Prompt = await this.PromptReadStore.GetByIdForAuthorAsync(this.AuthorId, this.PromptId, CancellationToken.None);
+
+            this.Prompt = string.IsNullOrWhiteSpace(this.AuthorId)
+                ? await this.PromptReadStore.GetPublicByIdAsync(this.PromptId, CancellationToken.None)
+                : await this.PromptReadStore.GetByIdForAuthorAsync(this.AuthorId, this.PromptId, CancellationToken.None);
 
             if (this.Prompt is null)
             {
