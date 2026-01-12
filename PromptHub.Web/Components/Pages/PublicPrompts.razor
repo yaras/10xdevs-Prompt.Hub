@@ -1,0 +1,58 @@
+@page "/public-prompts"
+@rendermode InteractiveServer
+
+@using MudBlazor
+@using PromptHub.Web.Application.Models.Prompts
+@using PromptHub.Web.Components.Prompts
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pt-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h4">Public prompts</MudText>
+    </MudStack>
+
+    <MudStack Class="mt-4" Spacing="2">
+        <MudTextField T="string" Value="this.SearchText"
+                      ValueChanged="this.OnSearchTextChangedAsync"
+                      Immediate="true"
+                      DebounceInterval="400"
+                      Placeholder="Search by title (min 3 chars)"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </MudStack>
+
+    @if (!string.IsNullOrWhiteSpace(this.ErrorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Dense="true" Class="mt-4">@this.ErrorMessage</MudAlert>
+    }
+    else if (this.IsLoading)
+    {
+        <MudStack Class="mt-8" AlignItems="AlignItems.Center" Justify="Justify.Center">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+        </MudStack>
+    }
+    else if (this.Prompts.Count == 0)
+    {
+        <MudStack Class="mt-8" Spacing="2" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">No public prompts found</MudText>
+            <MudText Color="Color.Secondary">Try clearing search or loading more.</MudText>
+        </MudStack>
+    }
+    else
+    {
+        <MudGrid Class="mt-4">
+            @foreach (var prompt in this.Prompts)
+            {
+                <MudItem xs="12" sm="6" md="4" lg="3" @key="prompt.PromptId">
+                    <PromptCard Prompt="prompt" ShowEdit="false" />
+                </MudItem>
+            }
+        </MudGrid>
+
+        @if (this.CanLoadMore)
+        {
+            <MudStack Class="mt-6" AlignItems="AlignItems.Center">
+                <MudButton Variant="Variant.Outlined" OnClick="this.LoadMoreAsync" Disabled="this.IsLoadingMore">Load more</MudButton>
+            </MudStack>
+        }
+    }
+</MudContainer>
