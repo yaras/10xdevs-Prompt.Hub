@@ -1,30 +1,16 @@
-﻿@* <div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">PromptHub</a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" /> *@
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+﻿<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="my-prompts">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> My prompts
+                <MudIcon Icon="@Icons.Material.Filled.Person" Title="Favorite" Class="mr-3" /> My prompts
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="public-prompts">
-                <span class="bi bi-collection-fill-nav-menu" aria-hidden="true"></span> Public prompts
+                <MudIcon Icon="@Icons.Material.Filled.Public" Title="Favorite" Class="mr-3" /> Public prompts
             </NavLink>
         </div>
-        
-        @* <div class="nav-item px-3">
-            <NavLink class="nav-link" href="profile">
-                <span class="bi bi-person-circle" aria-hidden="true"></span> Profile
-            </NavLink>
-        </div> *@
     </nav>
 </div>
 
