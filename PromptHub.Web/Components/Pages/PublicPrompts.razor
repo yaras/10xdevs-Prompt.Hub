@@ -3,6 +3,7 @@
 
 @using MudBlazor
 @using PromptHub.Web.Application.Models.Prompts
+@using PromptHub.Web.Components.Dialogs
 @using PromptHub.Web.Components.Prompts
 
 <MudContainer MaxWidth="MaxWidth.False" Class="pt-4">
@@ -43,7 +44,7 @@
             @foreach (var prompt in this.Prompts)
             {
                 <MudItem xs="12" sm="6" md="4" lg="3" @key="prompt.PromptId">
-                    <PromptCard Prompt="prompt" ShowEdit="false" />
+                    <PromptCard Prompt="prompt" ShowEdit="false" OnView="this.OpenViewDialogAsync" />
                 </MudItem>
             }
         </MudGrid>

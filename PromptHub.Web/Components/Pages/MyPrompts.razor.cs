@@ -132,6 +132,24 @@ public sealed partial class MyPrompts : ComponentBase
         }
     }
 
+    protected async Task OpenViewDialogAsync(string promptId)
+    {
+        var authorId = await this.TryGetAuthorIdAsync();
+        if (authorId is null)
+        {
+            return;
+        }
+
+        var parameters = new DialogParameters<PromptViewerDialog>
+        {
+            { d => d.AuthorId, authorId },
+            { d => d.PromptId, promptId },
+        };
+
+        var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true, MaxWidth = MaxWidth.Large };
+        await this.DialogService.ShowAsync<PromptViewerDialog>("View prompt", parameters, options);
+    }
+
     protected async Task OpenEditDialogAsync(string promptId)
     {
         var authorId = await this.TryGetAuthorIdAsync();
