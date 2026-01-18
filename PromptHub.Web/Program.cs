@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using MudBlazor.Services;
+using OpenAI;
 using PromptHub.Web.Components;
+using PromptHub.Web.Application.TagSuggestions;
 using PromptHub.Web.Infrastructure.DI;
+using PromptHub.Web.Infrastructure.OpenAI;
 
 namespace PromptHub.Web;
 
@@ -29,6 +32,21 @@ public class Program
             .AddInteractiveServerComponents();
 
         builder.Services.AddMudServices();
+
+        builder.Services.Configure<TagSuggestionOptions>(builder.Configuration.GetSection("TagSuggestion"));
+
+        builder.Services.AddSingleton(sp =>
+        {
+            var apiKey = builder.Configuration["OpenAI:ApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new InvalidOperationException("Missing configuration value: OpenAI:ApiKey");
+            }
+
+            return new OpenAIClient(apiKey);
+        });
+
+        builder.Services.AddScoped<ITagSuggestionService, OpenAiTagSuggestionService>();
 
         builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApp(options =>

@@ -46,6 +46,16 @@
                                       Immediate="true" />
                     </div>
                     <MudButton Variant="Variant.Outlined" OnClick="this.AddTag" Disabled="@string.IsNullOrWhiteSpace(this.NewTag)">Add</MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Secondary"
+                               OnClick="this.SuggestTagsAsync"
+                               Disabled="@(this.IsLoading || this.IsSuggestingTags || string.IsNullOrWhiteSpace(this.Model.Title) || this.Model.Tags.Count >= 10)">
+                        @if (this.IsSuggestingTags)
+                        {
+                            <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="me-2" />
+                        }
+                        Suggest tags
+                    </MudButton>
                 </MudStack>
 
                 <MudSelect T="PromptVisibility" Label="Visibility" @bind-Value="this.Model.Visibility" Class="mt-4">

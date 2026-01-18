@@ -5,9 +5,11 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
+using PromptHub.Web.Application.TagSuggestions;
 using MudBlazor.Components;
 
 namespace PromptHub.Web.Components.Dialogs;
@@ -18,6 +20,7 @@ namespace PromptHub.Web.Components.Dialogs;
 public sealed partial class PromptEditorDialog : ComponentBase
 {
     private string? expectedETag;
+    private bool isSuggestingTags;
 
     /// <summary>
     /// Gets or sets the editor mode.
@@ -55,12 +58,23 @@ public sealed partial class PromptEditorDialog : ComponentBase
     [Inject]
     private IPromptWriteStore PromptWriteStore { get; set; } = default!;
 
+    [Inject]
+    private ITagSuggestionService TagSuggestionService { get; set; } = default!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = default!;
+
+    [Inject]
+    private ILogger<PromptEditorDialog> Logger { get; set; } = default!;
+
     [CascadingParameter]
     private IMudDialogInstance Dialog { get; set; } = default!;
 
     protected MudForm? Form { get; set; }
 
     protected bool IsLoading { get; private set; }
+
+    protected bool IsSuggestingTags => this.isSuggestingTags;
 
     protected string? ErrorMessage { get; private set; }
 
@@ -132,6 +146,74 @@ public sealed partial class PromptEditorDialog : ComponentBase
 
         this.NewTag = null;
         this.StateHasChanged();
+    }
+
+    protected async Task SuggestTagsAsync()
+    {
+        if (this.isSuggestingTags)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(this.Model.Title))
+        {
+            this.Snackbar.Add("Enter a title first.", Severity.Info);
+            return;
+        }
+
+        if (this.Model.Tags.Count >= 10)
+        {
+            this.Snackbar.Add("You already have the maximum number of tags.", Severity.Info);
+            return;
+        }
+
+        try
+        {
+            this.isSuggestingTags = true;
+            var suggested = await this.TagSuggestionService.SuggestTagsAsync(this.Model.Title, CancellationToken.None);
+
+            var added = 0;
+            foreach (var tag in suggested)
+            {
+                if (this.Model.Tags.Count >= 10)
+                {
+                    break;
+                }
+
+                if (string.IsNullOrWhiteSpace(tag))
+                {
+                    continue;
+                }
+
+                this.NewTag = tag;
+                var beforeCount = this.Model.Tags.Count;
+                this.AddTag();
+
+                if (this.Model.Tags.Count > beforeCount)
+                {
+                    added++;
+                }
+            }
+
+            if (added > 0)
+            {
+                this.Snackbar.Add($"Added {added} suggested tag(s).", Severity.Success);
+            }
+            else
+            {
+                this.Snackbar.Add("No new tags were suggested.", Severity.Info);
+            }
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Tag suggestion failed. Mode={Mode} PromptId={PromptId}", this.Mode, this.PromptId);
+            this.Snackbar.Add("Unable to suggest tags right now. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            this.isSuggestingTags = false;
+            await this.InvokeAsync(this.StateHasChanged);
+        }
     }
 
     protected void RemoveTag(string tag) => this.Model.Tags.Remove(tag);
