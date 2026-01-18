@@ -96,3 +96,41 @@ PowerShell helper scripts are available in `scripts` to provision Azure resource
 
 ## Available scripts
 This repository uses standard .NET CLI commands:
+
+```bash
+# Restore dependencies
+dotnet restore
+
+# Build
+dotnet build
+
+# Run the Blazor Server app
+dotnet run --project PromptHub.Web
+
+# Run with Development environment explicitly (PowerShell)
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+dotnet run --project PromptHub.Web
+
+# Watch mode (hot reload)
+dotnet watch --project PromptHub.Web
+
+# Initialize user-secrets for local development
+dotnet user-secrets init --project PromptHub.Web
+
+# Set a secret (example: External ID client secret)
+dotnet user-secrets set "AzureAdB2C:ClientSecret" "<YOUR_CLIENT_SECRET>" --project PromptHub.Web
+
+# Run all tests
+dotnet test
+
+# Run unit tests only
+dotnet test ./PromptHub.Web.UnitTests/PromptHub.Web.UnitTests.csproj
+
+# Release build
+dotnet build -c Release
+
+# Publish for deployment (e.g., Azure App Service)
+dotnet publish ./PromptHub.Web/PromptHub.Web.csproj -c Release -o ./artifacts/publish
+
+# Provision Azure Table Storage tables (requires Azure CLI + PowerShell)
+pwsh ./scripts/1-tablestorage.ps1 -ConfigPath ./scripts/config.ps1
