@@ -4,13 +4,10 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Logging;
 using MudBlazor;
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
 using PromptHub.Web.Application.TagSuggestions;
-using MudBlazor.Components;
 
 namespace PromptHub.Web.Components.Dialogs;
 
@@ -70,14 +67,29 @@ public sealed partial class PromptEditorDialog : ComponentBase
     [CascadingParameter]
     private IMudDialogInstance Dialog { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the form reference used for validation.
+    /// </summary>
     protected MudForm? Form { get; set; }
 
+    /// <summary>
+    /// Gets a value indicating whether the dialog is currently loading.
+    /// </summary>
     protected bool IsLoading { get; private set; }
 
+    /// <summary>
+    /// Gets a value indicating whether tag suggestions are currently in progress.
+    /// </summary>
     protected bool IsSuggestingTags => this.isSuggestingTags;
 
+    /// <summary>
+    /// Gets the current error message.
+    /// </summary>
     protected string? ErrorMessage { get; private set; }
 
+    /// <summary>
+    /// Gets or sets the pending new tag value.
+    /// </summary>
     protected string? NewTag { get; set; }
 
     /// <inheritdoc />
@@ -124,8 +136,14 @@ public sealed partial class PromptEditorDialog : ComponentBase
         }
     }
 
+    /// <summary>
+    /// Cancels the dialog.
+    /// </summary>
     protected void Cancel() => this.Dialog.Cancel();
 
+    /// <summary>
+    /// Adds <see cref="NewTag"/> to the tag list if valid.
+    /// </summary>
     protected void AddTag()
     {
         if (string.IsNullOrWhiteSpace(this.NewTag))
@@ -148,6 +166,10 @@ public sealed partial class PromptEditorDialog : ComponentBase
         this.StateHasChanged();
     }
 
+    /// <summary>
+    /// Requests tag suggestions and adds any new suggestions to the prompt.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task SuggestTagsAsync()
     {
         if (this.isSuggestingTags)
@@ -216,8 +238,16 @@ public sealed partial class PromptEditorDialog : ComponentBase
         }
     }
 
+    /// <summary>
+    /// Removes the specified tag from the model.
+    /// </summary>
+    /// <param name="tag">The tag to remove.</param>
     protected void RemoveTag(string tag) => this.Model.Tags.Remove(tag);
 
+    /// <summary>
+    /// Saves the prompt.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task SaveAsync()
     {
         this.ErrorMessage = null;

@@ -24,23 +24,14 @@ public sealed partial class MyPrompts : ComponentBase
     private ContinuationToken? continuationToken;
     private bool initialLoadCompleted;
 
-    [Inject]
-    private IPromptReadStore PromptReadStore { get; set; } = default!;
-
-    [Inject]
-    private IDialogService DialogService { get; set; } = default!;
-
-    [Inject]
-    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-
-    [Inject]
-    private ISnackbar Snackbar { get; set; } = default!;
-
     /// <summary>
     /// Gets the prompts for the current author.
     /// </summary>
     protected List<PromptSummaryModel> Prompts { get; } = new();
 
+    /// <summary>
+    /// Gets the current user's author id.
+    /// </summary>
     protected string? CurrentUserAuthorId { get; private set; }
 
     /// <summary>
@@ -63,6 +54,18 @@ public sealed partial class MyPrompts : ComponentBase
     /// </summary>
     protected bool CanLoadMore => this.continuationToken is not null;
 
+    [Inject]
+    private IPromptReadStore PromptReadStore { get; set; } = default!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = default!;
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = default!;
+
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
     {
@@ -70,6 +73,10 @@ public sealed partial class MyPrompts : ComponentBase
         await this.ReloadAsync();
     }
 
+    /// <summary>
+    /// Loads the next page of prompts.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task LoadMoreAsync()
     {
         if (this.IsLoading || this.IsLoadingMore || this.continuationToken is null)
@@ -104,6 +111,10 @@ public sealed partial class MyPrompts : ComponentBase
         }
     }
 
+    /// <summary>
+    /// Opens the create prompt dialog.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task OpenCreateDialogAsync()
     {
         var authorId = await this.TryGetAuthorIdAsync();
@@ -132,6 +143,11 @@ public sealed partial class MyPrompts : ComponentBase
         }
     }
 
+    /// <summary>
+    /// Opens the view prompt dialog.
+    /// </summary>
+    /// <param name="promptId">The prompt id.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task OpenViewDialogAsync(string promptId)
     {
         var authorId = await this.TryGetAuthorIdAsync();
@@ -150,6 +166,11 @@ public sealed partial class MyPrompts : ComponentBase
         await this.DialogService.ShowAsync<PromptViewerDialog>("View prompt", parameters, options);
     }
 
+    /// <summary>
+    /// Opens the edit prompt dialog.
+    /// </summary>
+    /// <param name="promptId">The prompt id.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected async Task OpenEditDialogAsync(string promptId)
     {
         var authorId = await this.TryGetAuthorIdAsync();

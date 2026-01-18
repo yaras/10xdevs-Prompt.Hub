@@ -19,9 +19,15 @@ namespace PromptHub.Web.Components.Prompts
         [Parameter, EditorRequired]
         public PromptSummaryModel Prompt { get; set; } = default!;
 
+        /// <summary>
+        /// Gets or sets the current user author id (used to determine ownership).
+        /// </summary>
         [Parameter]
         public string? CurrentUserAuthorId { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether the prompt belongs to the current user.
+        /// </summary>
         public bool IsOwn =>
             !string.IsNullOrWhiteSpace(this.CurrentUserAuthorId)
             && !string.IsNullOrWhiteSpace(this.Prompt.AuthorId)
@@ -33,9 +39,15 @@ namespace PromptHub.Web.Components.Prompts
         [Parameter]
         public bool ShowEdit { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether voting actions are displayed.
+        /// </summary>
         [Parameter]
         public bool ShowVoting { get; set; }
 
+        /// <summary>
+        /// Gets or sets the callback invoked when a vote is cast.
+        /// </summary>
         [Parameter]
         public EventCallback<VoteRequest> OnVote { get; set; }
 
@@ -46,6 +58,10 @@ namespace PromptHub.Web.Components.Prompts
         [Parameter]
         public EventCallback<string> OnEdit { get; set; }
 
+        /// <summary>
+        /// Gets or sets the callback invoked when the view action is clicked.
+        /// The callback parameter is the <see cref="PromptSummaryModel.PromptId"/>.
+        /// </summary>
         [Parameter]
         public EventCallback<string> OnView { get; set; }
 

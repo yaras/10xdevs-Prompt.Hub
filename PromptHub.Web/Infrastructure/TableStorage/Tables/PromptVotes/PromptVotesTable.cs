@@ -33,11 +33,18 @@ public sealed class PromptVotesTable
     /// Ensures the backing table exists.
     /// </summary>
     /// <param name="ct">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task CreateIfNotExistsAsync(CancellationToken ct) => this.table.CreateIfNotExistsAsync(ct);
 
     /// <summary>
     /// Gets a vote entity.
     /// </summary>
+    /// <param name="partitionKey">The partition key.</param>
+    /// <param name="rowKey">The row key.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains the entity, or <see langword="null"/> when not found.
+    /// </returns>
     public async Task<PromptVoteEntity?> GetAsync(string partitionKey, string rowKey, CancellationToken ct)
     {
         try
@@ -54,6 +61,9 @@ public sealed class PromptVotesTable
     /// <summary>
     /// Upserts an entity.
     /// </summary>
+    /// <param name="entity">The entity to upsert.</param>
+    /// <param name="ct">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task UpsertAsync(PromptVoteEntity entity, CancellationToken ct) =>
         this.table.UpsertEntityAsync(entity, TableUpdateMode.Replace, ct);
 }

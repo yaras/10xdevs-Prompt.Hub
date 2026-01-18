@@ -105,6 +105,7 @@ public sealed class TablePromptWriteStore : IPromptWriteStore
         }
     }
 
+
     private static PublicPromptsNewestIndexEntity ToPublicNewestIndexEntity(PromptModel model)
     {
         var createdAtUtc = model.CreatedAt == default ? DateTimeOffset.UtcNow : model.CreatedAt;
