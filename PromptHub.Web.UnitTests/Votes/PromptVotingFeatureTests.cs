@@ -45,6 +45,120 @@ public sealed class PromptVotingFeatureTests
         aggregates.LastCall!.Value.DeltaDislikes.Should().Be(expectedDeltaDislikes);
     }
 
+    [Fact]
+    public async Task VoteAsync_WhenRequestIsNull_ThrowsArgumentNullException()
+    {
+        var sut = new PromptVotingFeature(
+            new FakeVoteStore(VoteValue.None),
+            new FakeAggregateStore(),
+            NullLogger<PromptVotingFeature>.Instance);
+
+        var act = () => sut.VoteAsync(null!, voterId: "u1", CancellationToken.None);
+        await act.Should().ThrowAsync<ArgumentNullException>()
+            .WithParameterName("request");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public async Task VoteAsync_WhenPromptIdIsMissing_ThrowsArgumentException(string? promptId)
+    {
+        var sut = new PromptVotingFeature(
+            new FakeVoteStore(VoteValue.None),
+            new FakeAggregateStore(),
+            NullLogger<PromptVotingFeature>.Instance);
+
+        var request = new VoteRequest(PromptId: promptId!, AuthorId: "a1", Requested: VoteValue.Like);
+
+        var act = () => sut.VoteAsync(request, voterId: "u1", CancellationToken.None);
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("request");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public async Task VoteAsync_WhenAuthorIdIsMissing_ThrowsArgumentException(string? authorId)
+    {
+        var sut = new PromptVotingFeature(
+            new FakeVoteStore(VoteValue.None),
+            new FakeAggregateStore(),
+            NullLogger<PromptVotingFeature>.Instance);
+
+        var request = new VoteRequest(PromptId: "p1", AuthorId: authorId!, Requested: VoteValue.Like);
+
+        var act = () => sut.VoteAsync(request, voterId: "u1", CancellationToken.None);
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("request");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public async Task VoteAsync_WhenVoterIdIsMissing_ThrowsArgumentException(string? voterId)
+    {
+        var sut = new PromptVotingFeature(
+            new FakeVoteStore(VoteValue.None),
+            new FakeAggregateStore(),
+            NullLogger<PromptVotingFeature>.Instance);
+
+        var request = new VoteRequest(PromptId: "p1", AuthorId: "a1", Requested: VoteValue.Like);
+
+        var act = () => sut.VoteAsync(request, voterId: voterId!, CancellationToken.None);
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("voterId");
+    }
+
+    [Fact]
+    public async Task VoteAsync_WhenRequestedVoteIsNotLikeOrDislike_ThrowsArgumentException()
+    {
+        var sut = new PromptVotingFeature(
+            new FakeVoteStore(VoteValue.None),
+            new FakeAggregateStore(),
+            NullLogger<PromptVotingFeature>.Instance);
+
+        var request = new VoteRequest(PromptId: "p1", AuthorId: "a1", Requested: VoteValue.None);
+
+        var act = () => sut.VoteAsync(request, voterId: "u1", CancellationToken.None);
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("request");
+    }
+
+    [Fact]
+    public async Task VoteAsync_ReturnsAggregatesFromStore()
+    {
+        var voteStore = new FakeVoteStore(VoteValue.None);
+        var aggregates = new FakeAggregateStore(returnLikes: 10, returnDislikes: 3);
+
+        var sut = new PromptVotingFeature(voteStore, aggregates, NullLogger<PromptVotingFeature>.Instance);
+
+        var request = new VoteRequest(PromptId: "p1", AuthorId: "a1", Requested: VoteValue.Like);
+        var result = await sut.VoteAsync(request, voterId: "u1", CancellationToken.None);
+
+        result.Likes.Should().Be(10);
+        result.Dislikes.Should().Be(3);
+        result.NewVote.Should().Be(VoteValue.Like);
+    }
+
+    [Fact]
+    public async Task VoteAsync_WhenUpsertThrows_PropagatesExceptionAndDoesNotUpdateAggregates()
+    {
+        var voteStore = new ThrowingVoteStore();
+        var aggregates = new FakeAggregateStore();
+
+        var sut = new PromptVotingFeature(voteStore, aggregates, NullLogger<PromptVotingFeature>.Instance);
+
+        var request = new VoteRequest(PromptId: "p1", AuthorId: "a1", Requested: VoteValue.Like);
+
+        var act = () => sut.VoteAsync(request, voterId: "u1", CancellationToken.None);
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        aggregates.LastCall.Should().BeNull();
+    }
+
 #pragma warning restore SA1600
 #pragma warning restore CS1591
 
@@ -69,7 +183,7 @@ public sealed class PromptVotingFeatureTests
         }
     }
 
-    private sealed class FakeAggregateStore : IPromptVoteAggregateStore
+    private sealed class FakeAggregateStore(int returnLikes = 0, int returnDislikes = 0) : IPromptVoteAggregateStore
     {
         public (string AuthorId, string PromptId, int DeltaLikes, int DeltaDislikes)? LastCall { get; private set; }
 
@@ -81,7 +195,16 @@ public sealed class PromptVotingFeatureTests
             CancellationToken ct)
         {
             this.LastCall = (authorId, promptId, deltaLikes, deltaDislikes);
-            return Task.FromResult(new PromptAggregatesModel(0, 0));
+            return Task.FromResult(new PromptAggregatesModel(returnLikes, returnDislikes));
         }
+    }
+
+    private sealed class ThrowingVoteStore : IVoteStore
+    {
+        public Task<VoteStateModel?> GetVoteAsync(string promptId, string voterId, CancellationToken ct)
+            => Task.FromResult<VoteStateModel?>(null);
+
+        public Task<VoteStateModel> UpsertVoteAsync(string promptId, string voterId, VoteValue voteValue, CancellationToken ct)
+            => throw new InvalidOperationException("Store failure");
     }
 }
