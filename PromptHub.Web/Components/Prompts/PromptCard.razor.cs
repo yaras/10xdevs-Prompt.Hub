@@ -16,7 +16,8 @@ namespace PromptHub.Web.Components.Prompts
         /// <summary>
         /// Gets or sets the prompt data to render.
         /// </summary>
-        [Parameter, EditorRequired]
+        [Parameter]
+        [EditorRequired]
         public PromptSummaryModel Prompt { get; set; } = default!;
 
         /// <summary>

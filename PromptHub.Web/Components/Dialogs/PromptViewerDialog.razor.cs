@@ -48,6 +48,8 @@ public sealed partial class PromptViewerDialog : ComponentBase
     /// </summary>
     protected PromptModel? Prompt { get; private set; }
 
+    /// <inheritdoc />
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrWhiteSpace(this.PromptId))
@@ -80,5 +82,8 @@ public sealed partial class PromptViewerDialog : ComponentBase
         }
     }
 
+    /// <summary>
+    /// Closes the dialog.
+    /// </summary>
     protected void Close() => this.Dialog.Close(DialogResult.Ok(true));
 }

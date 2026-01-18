@@ -2,7 +2,6 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PromptHub.Web.Application.Abstractions.Persistence;
@@ -49,23 +48,41 @@ public sealed partial class PromptEditorDialog : ComponentBase
     [Parameter]
     public PromptEditorModel Model { get; set; } = new();
 
+    /// <summary>
+    /// Gets or sets the prompt read store.
+    /// </summary>
     [Inject]
-    private IPromptReadStore PromptReadStore { get; set; } = default!;
+    protected IPromptReadStore PromptReadStore { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the prompt write store.
+    /// </summary>
     [Inject]
-    private IPromptWriteStore PromptWriteStore { get; set; } = default!;
+    protected IPromptWriteStore PromptWriteStore { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the tag suggestion service.
+    /// </summary>
     [Inject]
-    private ITagSuggestionService TagSuggestionService { get; set; } = default!;
+    protected ITagSuggestionService TagSuggestionService { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the snackbar service.
+    /// </summary>
     [Inject]
-    private ISnackbar Snackbar { get; set; } = default!;
+    protected ISnackbar Snackbar { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the logger.
+    /// </summary>
     [Inject]
-    private ILogger<PromptEditorDialog> Logger { get; set; } = default!;
+    protected ILogger<PromptEditorDialog> Logger { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the current dialog instance.
+    /// </summary>
     [CascadingParameter]
-    private IMudDialogInstance Dialog { get; set; } = default!;
+    protected IMudDialogInstance Dialog { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the form reference used for validation.
@@ -352,48 +369,4 @@ public sealed partial class PromptEditorDialog : ComponentBase
             yield return $"Max {max} characters";
         }
     }
-}
-
-/// <summary>
-/// Editor dialog mode.
-/// </summary>
-public enum PromptEditorMode
-{
-    /// <summary>
-    /// Create mode.
-    /// </summary>
-    Create,
-
-    /// <summary>
-    /// Edit mode.
-    /// </summary>
-    Edit,
-}
-
-/// <summary>
-/// Editable prompt fields.
-/// </summary>
-public sealed class PromptEditorModel
-{
-    /// <summary>
-    /// Gets or sets the prompt title.
-    /// </summary>
-    [Required]
-    public string Title { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the prompt text.
-    /// </summary>
-    [Required]
-    public string PromptText { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the prompt tags.
-    /// </summary>
-    public List<string> Tags { get; set; } = new();
-
-    /// <summary>
-    /// Gets or sets the prompt visibility.
-    /// </summary>
-    public PromptVisibility Visibility { get; set; } = PromptVisibility.Private;
 }

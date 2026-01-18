@@ -2,6 +2,7 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -11,7 +12,6 @@ using PromptHub.Web.Application.Features.Votes;
 using PromptHub.Web.Application.Models.Prompts;
 using PromptHub.Web.Application.Models.Votes;
 using PromptHub.Web.Components.Dialogs;
-using System.Security.Claims;
 
 namespace PromptHub.Web.Components.Pages;
 
@@ -30,37 +30,37 @@ public sealed partial class PublicPrompts : ComponentBase
     /// <summary>
     /// Gets the currently displayed prompts.
     /// </summary>
-    protected List<PromptSummaryModel> Prompts { get; } = new();
+    private List<PromptSummaryModel> Prompts { get; } = new();
 
     /// <summary>
     /// Gets a value indicating whether the page is loading.
     /// </summary>
-    protected bool IsLoading { get; private set; }
+    private bool IsLoading { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether the next page is loading.
     /// </summary>
-    protected bool IsLoadingMore { get; private set; }
+    private bool IsLoadingMore { get; set; }
 
     /// <summary>
     /// Gets the current error message.
     /// </summary>
-    protected string? ErrorMessage { get; private set; }
+    private string? ErrorMessage { get; set; }
 
     /// <summary>
     /// Gets or sets the current search text.
     /// </summary>
-    protected string? SearchText { get; set; }
+    private string? SearchText { get; set; }
 
     /// <summary>
     /// Gets the current user id.
     /// </summary>
-    protected string? CurrentUserId { get; private set; }
+    private string? CurrentUserId { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether more items can be loaded.
     /// </summary>
-    protected bool CanLoadMore => this.continuationToken is not null;
+    private bool CanLoadMore => this.continuationToken is not null;
 
     [Inject]
     private IPromptReadStore PromptReadStore { get; set; } = default!;
