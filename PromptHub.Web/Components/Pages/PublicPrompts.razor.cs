@@ -2,6 +2,7 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -11,10 +12,12 @@ using PromptHub.Web.Application.Features.Votes;
 using PromptHub.Web.Application.Models.Prompts;
 using PromptHub.Web.Application.Models.Votes;
 using PromptHub.Web.Components.Dialogs;
-using System.Security.Claims;
 
 namespace PromptHub.Web.Components.Pages;
 
+/// <summary>
+/// Displays public prompts and allows voting.
+/// </summary>
 [Authorize]
 public sealed partial class PublicPrompts : ComponentBase
 {
@@ -23,6 +26,41 @@ public sealed partial class PublicPrompts : ComponentBase
 
     private ContinuationToken? continuationToken;
     private bool initialLoadCompleted;
+
+    /// <summary>
+    /// Gets the currently displayed prompts.
+    /// </summary>
+    private List<PromptSummaryModel> Prompts { get; } = new();
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the page is loading.
+    /// </summary>
+    private bool IsLoading { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the next page is loading.
+    /// </summary>
+    private bool IsLoadingMore { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current error message.
+    /// </summary>
+    private string? ErrorMessage { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current search text.
+    /// </summary>
+    private string? SearchText { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current user id.
+    /// </summary>
+    private string? CurrentUserId { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether more items can be loaded.
+    /// </summary>
+    private bool CanLoadMore => this.continuationToken is not null;
 
     [Inject]
     private IPromptReadStore PromptReadStore { get; set; } = default!;
@@ -42,27 +80,45 @@ public sealed partial class PublicPrompts : ComponentBase
     [Inject]
     private IVoteStore VoteStore { get; set; } = default!;
 
-    protected List<PromptSummaryModel> Prompts { get; } = new();
-
-    protected bool IsLoading { get; private set; }
-
-    protected bool IsLoadingMore { get; private set; }
-
-    protected string? ErrorMessage { get; private set; }
-
-    protected string? SearchText { get; set; }
-
-    protected string? CurrentUserId { get; private set; }
-
-    protected bool CanLoadMore => this.continuationToken is not null;
-
+    /// <inheritdoc />
     protected override async Task OnInitializedAsync()
     {
         this.CurrentUserId = await this.TryGetUserIdAsync();
         await this.ReloadAsync();
     }
 
-    protected async Task HandleVoteAsync(VoteRequest request)
+    private static (int DeltaLikes, int DeltaDislikes) ComputeDelta(VoteValue current, VoteValue next)
+    {
+        var deltaLikes = 0;
+        var deltaDislikes = 0;
+
+        if (current == VoteValue.Like)
+        {
+            deltaLikes -= 1;
+        }
+        else if (current == VoteValue.Dislike)
+        {
+            deltaDislikes -= 1;
+        }
+
+        if (next == VoteValue.Like)
+        {
+            deltaLikes += 1;
+        }
+        else if (next == VoteValue.Dislike)
+        {
+            deltaDislikes += 1;
+        }
+
+        return (deltaLikes, deltaDislikes);
+    }
+
+    /// <summary>
+    /// Handles a vote request.
+    /// </summary>
+    /// <param name="request">The vote request.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task HandleVoteAsync(VoteRequest request)
     {
         var voterId = this.CurrentUserId ?? await this.TryGetUserIdAsync();
         this.CurrentUserId ??= voterId;
@@ -108,7 +164,12 @@ public sealed partial class PublicPrompts : ComponentBase
         }
     }
 
-    protected async Task OpenViewDialogAsync(string promptId)
+    /// <summary>
+    /// Opens the view prompt dialog.
+    /// </summary>
+    /// <param name="promptId">The prompt id.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task OpenViewDialogAsync(string promptId)
     {
         var parameters = new DialogParameters<PromptViewerDialog>
         {
@@ -119,7 +180,11 @@ public sealed partial class PublicPrompts : ComponentBase
         await this.DialogService.ShowAsync<PromptViewerDialog>("View prompt", parameters, options);
     }
 
-    protected async Task LoadMoreAsync()
+    /// <summary>
+    /// Loads the next page of public prompts.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task LoadMoreAsync()
     {
         if (this.IsLoading || this.IsLoadingMore || this.continuationToken is null)
         {
@@ -148,7 +213,12 @@ public sealed partial class PublicPrompts : ComponentBase
         }
     }
 
-    protected async Task OnSearchTextChangedAsync(string? value)
+    /// <summary>
+    /// Updates the search text and reloads results.
+    /// </summary>
+    /// <param name="value">The new search input.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task OnSearchTextChangedAsync(string? value)
     {
         this.SearchText = value;
         await this.ReloadAsync();
@@ -206,32 +276,6 @@ public sealed partial class PublicPrompts : ComponentBase
             .ToArray();
     }
 
-    private static (int DeltaLikes, int DeltaDislikes) ComputeDelta(VoteValue current, VoteValue next)
-    {
-        var deltaLikes = 0;
-        var deltaDislikes = 0;
-
-        if (current == VoteValue.Like)
-        {
-            deltaLikes -= 1;
-        }
-        else if (current == VoteValue.Dislike)
-        {
-            deltaDislikes -= 1;
-        }
-
-        if (next == VoteValue.Like)
-        {
-            deltaLikes += 1;
-        }
-        else if (next == VoteValue.Dislike)
-        {
-            deltaDislikes += 1;
-        }
-
-        return (deltaLikes, deltaDislikes);
-    }
-
     private async Task<IReadOnlyList<PromptSummaryModel>> PopulateVotesAsync(IReadOnlyList<PromptSummaryModel> items, CancellationToken ct)
     {
         if (items.Count == 0)
@@ -273,5 +317,4 @@ public sealed partial class PublicPrompts : ComponentBase
             return null;
         }
     }
-
 }

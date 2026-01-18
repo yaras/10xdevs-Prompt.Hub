@@ -2,10 +2,9 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
-namespace PromptHub.Web.Application.Models.Prompts;
-
 using PromptHub.Web.Application.Models.Votes;
 
+namespace PromptHub.Web.Application.Models.Prompts;
 /// <summary>
 /// Represents a prompt summary used for list rendering.
 /// </summary>
@@ -19,6 +18,7 @@ using PromptHub.Web.Application.Models.Votes;
 /// <param name="UpdatedAt">The last update timestamp.</param>
 /// <param name="Likes">The aggregate likes count.</param>
 /// <param name="Dislikes">The aggregate dislikes count.</param>
+/// <param name="UserVote">The user's vote value.</param>
 public sealed record PromptSummaryModel(
     string PromptId,
     string AuthorId,

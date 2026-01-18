@@ -29,7 +29,7 @@
                               Validation="@(new Func<string, IEnumerable<string>>(v => MaxCharacters(v, 3000)))"
                               Immediate="true" />
 
-                <MudChipSet T="string" MultiSelection="true" Class="mt-2">
+                <MudChipSet T="string" Class="mt-2">
                     @foreach (var tag in this.Model.Tags)
                     {
                         <MudChip T="string" text="@tag" onclose="() => this.RemoveTag(tag)" closeable="true" />

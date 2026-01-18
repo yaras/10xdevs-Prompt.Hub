@@ -7,8 +7,8 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using MudBlazor.Services;
 using OpenAI;
-using PromptHub.Web.Components;
 using PromptHub.Web.Application.TagSuggestions;
+using PromptHub.Web.Components;
 using PromptHub.Web.Infrastructure.DI;
 using PromptHub.Web.Infrastructure.OpenAI;
 

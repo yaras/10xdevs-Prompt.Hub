@@ -2,15 +2,11 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Logging;
 using MudBlazor;
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
 using PromptHub.Web.Application.TagSuggestions;
-using MudBlazor.Components;
 
 namespace PromptHub.Web.Components.Dialogs;
 
@@ -52,33 +48,72 @@ public sealed partial class PromptEditorDialog : ComponentBase
     [Parameter]
     public PromptEditorModel Model { get; set; } = new();
 
+    /// <summary>
+    /// Gets or sets the prompt read store.
+    /// </summary>
     [Inject]
     private IPromptReadStore PromptReadStore { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the prompt write store.
+    /// </summary>
     [Inject]
     private IPromptWriteStore PromptWriteStore { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the tag suggestion service.
+    /// </summary>
     [Inject]
     private ITagSuggestionService TagSuggestionService { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the snackbar service.
+    /// </summary>
     [Inject]
     private ISnackbar Snackbar { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the logger.
+    /// </summary>
     [Inject]
     private ILogger<PromptEditorDialog> Logger { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the current dialog instance.
+    /// </summary>
     [CascadingParameter]
     private IMudDialogInstance Dialog { get; set; } = default!;
 
-    protected MudForm? Form { get; set; }
+    /// <summary>
+    /// Gets or sets the form reference used for validation.
+    /// </summary>
+    private MudForm? Form { get; set; }
 
-    protected bool IsLoading { get; private set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether the dialog is currently loading.
+    /// </summary>
+    private bool IsLoading
+    {
+        get; set;
+    }
 
-    protected bool IsSuggestingTags => this.isSuggestingTags;
+    /// <summary>
+    /// Gets a value indicating whether tag suggestions are currently in progress.
+    /// </summary>
+    private bool IsSuggestingTags => this.isSuggestingTags;
 
-    protected string? ErrorMessage { get; private set; }
+    /// <summary>
+    /// Gets or sets the current error message.
+    /// </summary>
+    private string? ErrorMessage
+    {
+        get; set;
+    }
 
-    protected string? NewTag { get; set; }
+    /// <summary>
+    /// Gets or sets the pending new tag value.
+    /// </summary>
+    private string? NewTag { get; set; }
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -124,9 +159,23 @@ public sealed partial class PromptEditorDialog : ComponentBase
         }
     }
 
-    protected void Cancel() => this.Dialog.Cancel();
+    private static IEnumerable<string> MaxCharacters(string ch, int max)
+    {
+        if (!string.IsNullOrEmpty(ch) && max < ch?.Length)
+        {
+            yield return $"Max {max} characters";
+        }
+    }
 
-    protected void AddTag()
+    /// <summary>
+    /// Cancels the dialog.
+    /// </summary>
+    private void Cancel() => this.Dialog.Cancel();
+
+    /// <summary>
+    /// Adds <see cref="NewTag"/> to the tag list if valid.
+    /// </summary>
+    private void AddTag()
     {
         if (string.IsNullOrWhiteSpace(this.NewTag))
         {
@@ -148,7 +197,11 @@ public sealed partial class PromptEditorDialog : ComponentBase
         this.StateHasChanged();
     }
 
-    protected async Task SuggestTagsAsync()
+    /// <summary>
+    /// Requests tag suggestions and adds any new suggestions to the prompt.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task SuggestTagsAsync()
     {
         if (this.isSuggestingTags)
         {
@@ -216,9 +269,17 @@ public sealed partial class PromptEditorDialog : ComponentBase
         }
     }
 
-    protected void RemoveTag(string tag) => this.Model.Tags.Remove(tag);
+    /// <summary>
+    /// Removes the specified tag from the model.
+    /// </summary>
+    /// <param name="tag">The tag to remove.</param>
+    private void RemoveTag(string tag) => this.Model.Tags.Remove(tag);
 
-    protected async Task SaveAsync()
+    /// <summary>
+    /// Saves the prompt.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task SaveAsync()
     {
         this.ErrorMessage = null;
 
@@ -314,56 +375,4 @@ public sealed partial class PromptEditorDialog : ComponentBase
             this.IsLoading = false;
         }
     }
-
-    private static IEnumerable<string> MaxCharacters(string ch, int max)
-    {
-        if (!string.IsNullOrEmpty(ch) && max < ch?.Length)
-        {
-            yield return $"Max {max} characters";
-        }
-    }
-}
-
-/// <summary>
-/// Editor dialog mode.
-/// </summary>
-public enum PromptEditorMode
-{
-    /// <summary>
-    /// Create mode.
-    /// </summary>
-    Create,
-
-    /// <summary>
-    /// Edit mode.
-    /// </summary>
-    Edit,
-}
-
-/// <summary>
-/// Editable prompt fields.
-/// </summary>
-public sealed class PromptEditorModel
-{
-    /// <summary>
-    /// Gets or sets the prompt title.
-    /// </summary>
-    [Required]
-    public string Title { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the prompt text.
-    /// </summary>
-    [Required]
-    public string PromptText { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the prompt tags.
-    /// </summary>
-    public List<string> Tags { get; set; } = new();
-
-    /// <summary>
-    /// Gets or sets the prompt visibility.
-    /// </summary>
-    public PromptVisibility Visibility { get; set; } = PromptVisibility.Private;
 }

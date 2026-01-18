@@ -2,9 +2,9 @@
 // Copyright (c) PromptHub. All rights reserved.
 // </copyright>
 
+using Azure.Data.Tables;
 using PromptHub.Web.Application.Abstractions.Persistence;
 using PromptHub.Web.Application.Models.Prompts;
-using Azure.Data.Tables;
 using PromptHub.Web.Infrastructure.TableStorage.Mapping;
 using PromptHub.Web.Infrastructure.TableStorage.Pagination;
 using PromptHub.Web.Infrastructure.TableStorage.Tables.Prompts;
