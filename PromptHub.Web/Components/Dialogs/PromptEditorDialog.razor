@@ -47,8 +47,9 @@
                     </div>
                     <MudButton Variant="Variant.Outlined" OnClick="this.AddTag" Disabled="@string.IsNullOrWhiteSpace(this.NewTag)">Add</MudButton>
                     <MudButton Variant="Variant.Outlined"
-                               Color="Color.Secondary"
+                               Color="Color.Success"
                                OnClick="this.SuggestTagsAsync"
+                               StartIcon="@Icons.Material.Filled.AutoAwesome"
                                Disabled="@(this.IsLoading || this.IsSuggestingTags || string.IsNullOrWhiteSpace(this.Model.Title) || this.Model.Tags.Count >= 10)">
                         @if (this.IsSuggestingTags)
                         {

@@ -4,6 +4,7 @@
 
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Json.Schema;
 using OpenAI;
 using OpenAI.Chat;
 using PromptHub.Web.Application.TagSuggestions;
@@ -15,6 +16,22 @@ namespace PromptHub.Web.Infrastructure.OpenAI;
 /// </summary>
 public sealed class OpenAiTagSuggestionService : ITagSuggestionService
 {
+    private static readonly JsonSchema ResponseSchema = new JsonSchemaBuilder()
+        .Type(SchemaValueType.Object)
+        .Properties(
+            ("tags", new JsonSchemaBuilder()
+                .Type(SchemaValueType.Array)
+                .Items(new JsonSchemaBuilder().Type(SchemaValueType.String))))
+        .Required("tags")
+        .AdditionalProperties(false);
+
+    private static readonly string ResponseSchemaJson = JsonSerializer.Serialize(
+        ResponseSchema,
+        new JsonSerializerOptions
+        {
+            WriteIndented = false,
+        });
+
     private readonly OpenAIClient client;
     private readonly TagSuggestionOptions options;
     private readonly ILogger<OpenAiTagSuggestionService> logger;
@@ -58,28 +75,39 @@ public sealed class OpenAiTagSuggestionService : ITagSuggestionService
 
         var maxSuggestions = this.options.MaxSuggestions <= 0 ? 4 : this.options.MaxSuggestions;
 
-        var system = "You are a tag suggestion engine. You only suggest tags from the allowed list. Output must be a JSON array of strings. No extra text.";
-        var user = $"Title: {title}\nAllowed tags: [{string.Join(", ", allowed)}]\nReturn up to {maxSuggestions} tags.";
+        var system = "You are a tag suggestion engine. You only suggest tags from the allowed list. Output must be valid JSON matching the provided schema. No extra text.";
+        var user = $"Title: {title}\nAllowed tags: [{string.Join(", ", allowed)}]\nReturn up to {maxSuggestions} tags in JSON format";
 
         try
         {
             var chat = this.client.GetChatClient(this.options.Model);
 
+            var chatResponseFormat = ChatResponseFormat.CreateJsonSchemaFormat(
+                jsonSchemaFormatName: "tags_result",
+                jsonSchema: BinaryData.FromString(ResponseSchemaJson),
+                jsonSchemaIsStrict: true);
+
+            var options = new ChatCompletionOptions
+            {
+                ResponseFormat = chatResponseFormat,
+            };
+
             ChatCompletion completion = await chat.CompleteChatAsync(
-                new ChatMessage[]
-                {
+                [
                     new SystemChatMessage(system),
                     new UserChatMessage(user),
-                },
+                ],
+                options: options,
                 cancellationToken: cancellationToken);
 
             var content = completion.Content?.FirstOrDefault()?.Text ?? string.Empty;
 
-            var parsed = TryParseJsonStringArray(content, out var tags)
-                ? tags
-                : FallbackSplit(content);
+            if (!TryParseAndValidateResponse(content, out var tags))
+            {
+                throw new InvalidOperationException("OpenAI response did not match the expected JSON schema.");
+            }
 
-            var result = parsed
+            var result = tags
                 .Select(static t => t.Trim().ToLowerInvariant())
                 .Where(static t => !string.IsNullOrWhiteSpace(t))
                 .Where(t => allowed.Contains(t, StringComparer.Ordinal))
@@ -96,20 +124,26 @@ public sealed class OpenAiTagSuggestionService : ITagSuggestionService
         }
     }
 
-    private static bool TryParseJsonStringArray(string content, out string[] tags)
+    private static bool TryParseAndValidateResponse(string content, out string[] tags)
     {
         tags = Array.Empty<string>();
 
         try
         {
-            var doc = JsonDocument.Parse(content);
-            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+            var element = JsonSerializer.Deserialize<JsonElement>(content);
+            var evaluation = ResponseSchema.Evaluate(element);
+            if (!evaluation.IsValid)
+            {
+                return false;
+            }
+
+            if (!element.TryGetProperty("tags", out var tagsElement) || tagsElement.ValueKind != JsonValueKind.Array)
             {
                 return false;
             }
 
             var list = new List<string>();
-            foreach (var item in doc.RootElement.EnumerateArray())
+            foreach (var item in tagsElement.EnumerateArray())
             {
                 if (item.ValueKind == JsonValueKind.String)
                 {
@@ -124,13 +158,5 @@ public sealed class OpenAiTagSuggestionService : ITagSuggestionService
         {
             return false;
         }
-    }
-
-    private static IEnumerable<string> FallbackSplit(string content)
-    {
-        return content
-            .Replace("\r", string.Empty, StringComparison.Ordinal)
-            .Split(new[] { '\n', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(static t => t.Trim().Trim('"'));
     }
 }

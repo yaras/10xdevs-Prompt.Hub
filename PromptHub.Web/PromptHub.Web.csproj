@@ -26,6 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="JsonSchema.Net" Version="8.0.5" />
 		<PackageReference Include="MudBlazor" Version="8.15.0" />
 		<PackageReference Include="Azure.Data.Tables" Version="12.9.1" />
 		<PackageReference Include="OpenAI" Version="2.0.0" />

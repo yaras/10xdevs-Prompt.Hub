@@ -100,9 +100,9 @@ Responsibilities:
 - build a prompt instructing:
   - only return tags from the provided allowed list
   - return up to `MaxSuggestions`
-  - return machine-readable output (JSON array) to simplify parsing
+  - return machine-readable output (JSON) validated against a JSON Schema
 - make the OpenAI SDK call
-- parse output robustly
+- validate output against the JSON Schema
 - normalize to lower-case
 - return list
 
@@ -114,8 +114,8 @@ Prompting strategy (recommended):
   - constraints: return JSON array of strings, no prose
 
 Parsing:
-- attempt JSON parse first
-- fallback: split lines/commas and sanitize if response is not valid JSON
+- use JSON Schema validation to enforce output contract and avoid ad-hoc parsing
+- treat schema validation failures as errors (log + user-friendly snackbar in UI)
 
 Resilience:
 - set a reasonable timeout (e.g., 5–10 seconds)
