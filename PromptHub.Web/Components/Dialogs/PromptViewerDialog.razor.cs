@@ -34,19 +34,19 @@ public sealed partial class PromptViewerDialog : ComponentBase
     private IMudDialogInstance Dialog { get; set; } = default!;
 
     /// <summary>
-    /// Gets a value indicating whether the dialog is currently loading.
+    /// Gets or sets a value indicating whether the dialog is currently loading.
     /// </summary>
-    protected bool IsLoading { get; private set; }
+    private bool IsLoading { get; set; }
 
     /// <summary>
-    /// Gets the current error message.
+    /// Gets or sets the current error message.
     /// </summary>
-    protected string? ErrorMessage { get; private set; }
+    private string? ErrorMessage { get; set; }
 
     /// <summary>
-    /// Gets the loaded prompt.
+    /// Gets or sets the loaded prompt.
     /// </summary>
-    protected PromptModel? Prompt { get; private set; }
+    private PromptModel? Prompt { get; set; }
 
     /// <inheritdoc />
     /// <returns>A task that represents the asynchronous operation.</returns>
@@ -85,5 +85,5 @@ public sealed partial class PromptViewerDialog : ComponentBase
     /// <summary>
     /// Closes the dialog.
     /// </summary>
-    protected void Close() => this.Dialog.Close(DialogResult.Ok(true));
+    private void Close() => this.Dialog.Close(DialogResult.Ok(true));
 }
