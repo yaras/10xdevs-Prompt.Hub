@@ -33,17 +33,17 @@ public sealed partial class PublicPrompts : ComponentBase
     private List<PromptSummaryModel> Prompts { get; } = new();
 
     /// <summary>
-    /// Gets a value indicating whether the page is loading.
+    /// Gets or sets a value indicating whether the page is loading.
     /// </summary>
     private bool IsLoading { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the next page is loading.
+    /// Gets or sets a value indicating whether the next page is loading.
     /// </summary>
     private bool IsLoadingMore { get; set; }
 
     /// <summary>
-    /// Gets the current error message.
+    /// Gets or sets the current error message.
     /// </summary>
     private string? ErrorMessage { get; set; }
 
@@ -53,7 +53,7 @@ public sealed partial class PublicPrompts : ComponentBase
     private string? SearchText { get; set; }
 
     /// <summary>
-    /// Gets the current user id.
+    /// Gets or sets the current user id.
     /// </summary>
     private string? CurrentUserId { get; set; }
 
@@ -87,12 +87,38 @@ public sealed partial class PublicPrompts : ComponentBase
         await this.ReloadAsync();
     }
 
+    private static (int DeltaLikes, int DeltaDislikes) ComputeDelta(VoteValue current, VoteValue next)
+    {
+        var deltaLikes = 0;
+        var deltaDislikes = 0;
+
+        if (current == VoteValue.Like)
+        {
+            deltaLikes -= 1;
+        }
+        else if (current == VoteValue.Dislike)
+        {
+            deltaDislikes -= 1;
+        }
+
+        if (next == VoteValue.Like)
+        {
+            deltaLikes += 1;
+        }
+        else if (next == VoteValue.Dislike)
+        {
+            deltaDislikes += 1;
+        }
+
+        return (deltaLikes, deltaDislikes);
+    }
+
     /// <summary>
     /// Handles a vote request.
     /// </summary>
     /// <param name="request">The vote request.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task HandleVoteAsync(VoteRequest request)
+    private async Task HandleVoteAsync(VoteRequest request)
     {
         var voterId = this.CurrentUserId ?? await this.TryGetUserIdAsync();
         this.CurrentUserId ??= voterId;
@@ -143,7 +169,7 @@ public sealed partial class PublicPrompts : ComponentBase
     /// </summary>
     /// <param name="promptId">The prompt id.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task OpenViewDialogAsync(string promptId)
+    private async Task OpenViewDialogAsync(string promptId)
     {
         var parameters = new DialogParameters<PromptViewerDialog>
         {
@@ -158,7 +184,7 @@ public sealed partial class PublicPrompts : ComponentBase
     /// Loads the next page of public prompts.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task LoadMoreAsync()
+    private async Task LoadMoreAsync()
     {
         if (this.IsLoading || this.IsLoadingMore || this.continuationToken is null)
         {
@@ -192,36 +218,10 @@ public sealed partial class PublicPrompts : ComponentBase
     /// </summary>
     /// <param name="value">The new search input.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task OnSearchTextChangedAsync(string? value)
+    private async Task OnSearchTextChangedAsync(string? value)
     {
         this.SearchText = value;
         await this.ReloadAsync();
-    }
-
-    private static (int DeltaLikes, int DeltaDislikes) ComputeDelta(VoteValue current, VoteValue next)
-    {
-        var deltaLikes = 0;
-        var deltaDislikes = 0;
-
-        if (current == VoteValue.Like)
-        {
-            deltaLikes -= 1;
-        }
-        else if (current == VoteValue.Dislike)
-        {
-            deltaDislikes -= 1;
-        }
-
-        if (next == VoteValue.Like)
-        {
-            deltaLikes += 1;
-        }
-        else if (next == VoteValue.Dislike)
-        {
-            deltaDislikes += 1;
-        }
-
-        return (deltaLikes, deltaDislikes);
     }
 
     private async Task ReloadAsync()

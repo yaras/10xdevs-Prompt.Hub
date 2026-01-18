@@ -27,32 +27,32 @@ public sealed partial class MyPrompts : ComponentBase
     /// <summary>
     /// Gets the prompts for the current author.
     /// </summary>
-    protected List<PromptSummaryModel> Prompts { get; } = new();
+    private List<PromptSummaryModel> Prompts { get; } = new();
 
     /// <summary>
-    /// Gets the current user's author id.
+    /// Gets or sets the current user's author id.
     /// </summary>
-    protected string? CurrentUserAuthorId { get; private set; }
+    private string? CurrentUserAuthorId { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the page is loading.
+    /// Gets or sets a value indicating whether the page is loading.
     /// </summary>
-    protected bool IsLoading { get; private set; }
+    private bool IsLoading { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the next page is loading.
+    /// Gets or sets a value indicating whether the next page is loading.
     /// </summary>
-    protected bool IsLoadingMore { get; private set; }
+    private bool IsLoadingMore { get; set; }
 
     /// <summary>
-    /// Gets the current error message.
+    /// Gets or sets the current error message.
     /// </summary>
-    protected string? ErrorMessage { get; private set; }
+    private string? ErrorMessage { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether more items can be loaded.
     /// </summary>
-    protected bool CanLoadMore => this.continuationToken is not null;
+    private bool CanLoadMore => this.continuationToken is not null;
 
     [Inject]
     private IPromptReadStore PromptReadStore { get; set; } = default!;
@@ -77,7 +77,7 @@ public sealed partial class MyPrompts : ComponentBase
     /// Loads the next page of prompts.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task LoadMoreAsync()
+    private async Task LoadMoreAsync()
     {
         if (this.IsLoading || this.IsLoadingMore || this.continuationToken is null)
         {
@@ -115,7 +115,7 @@ public sealed partial class MyPrompts : ComponentBase
     /// Opens the create prompt dialog.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task OpenCreateDialogAsync()
+    private async Task OpenCreateDialogAsync()
     {
         var authorId = await this.TryGetAuthorIdAsync();
         if (authorId is null)
@@ -137,7 +137,7 @@ public sealed partial class MyPrompts : ComponentBase
         var dialog = await this.DialogService.ShowAsync<PromptEditorDialog>("Create prompt", parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result != null && !result.Canceled)
         {
             await this.ReloadAsync();
         }
@@ -148,7 +148,7 @@ public sealed partial class MyPrompts : ComponentBase
     /// </summary>
     /// <param name="promptId">The prompt id.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task OpenViewDialogAsync(string promptId)
+    private async Task OpenViewDialogAsync(string promptId)
     {
         var authorId = await this.TryGetAuthorIdAsync();
         if (authorId is null)
@@ -171,7 +171,7 @@ public sealed partial class MyPrompts : ComponentBase
     /// </summary>
     /// <param name="promptId">The prompt id.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async Task OpenEditDialogAsync(string promptId)
+    private async Task OpenEditDialogAsync(string promptId)
     {
         var authorId = await this.TryGetAuthorIdAsync();
         if (authorId is null)
@@ -190,7 +190,7 @@ public sealed partial class MyPrompts : ComponentBase
         var dialog = await this.DialogService.ShowAsync<PromptEditorDialog>("Edit prompt", parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result != null && !result.Canceled)
         {
             await this.ReloadAsync();
         }
