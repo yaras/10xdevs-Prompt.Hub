@@ -92,8 +92,6 @@ PowerShell helper scripts are available in `scripts` to provision Azure resource
 
 > Note: `scripts/config.ps1` is treated as local-only configuration and is excluded from build/publish outputs.
 
-> Missing details for a fully copy/paste local setup: exact `appsettings.json` keys for Entra ID, Table Storage connection settings, and the required app role name/value.
-
 ## Available scripts
 This repository uses standard .NET CLI commands:
 
