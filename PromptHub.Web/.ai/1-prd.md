@@ -176,8 +176,8 @@ FR-064 Vote persistence
 - The system must persist per-user vote state so totals and the user’s current selection are consistent across sessions.
 
 ### 3.8 AI-assisted tag suggestions
-FR-070 Suggest tags on title blur
-- On prompt create/edit, when the user enters a title and leaves the title field, the UI must trigger an AI tag suggestion request.
+FR-070 Suggest tags on manual action
+- On prompt create/edit, when the user clicks a "Suggest tags" action, the UI must trigger an AI tag suggestion request.
 
 FR-071 Loader and non-blocking behavior
 - The UI must show a loader while suggestions are being fetched.
@@ -190,8 +190,8 @@ FR-073 Suggestion size and UX
 - The system should return 3–4 suggested tags.
 - Users must be able to add a suggested tag by clicking it.
 
-FR-074 Retrigger on title change
-- If the title changes and the user leaves the field again, a new suggestion request must run.
+FR-074 Retrigger on demand
+- If the title changes, users can click "Suggest tags" again to trigger a new suggestion request.
 
 ### 3.9 Storage, pagination, and operational requirements
 FR-080 Azure Table Storage
